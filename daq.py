@@ -27,22 +27,9 @@ class DAQApp(QWidget):
         self.ui = Ui_Form()
         self.ui.setupUi(self)
            
+        self.xml_name_matches = ["main", "run", "chan", "dscr", ".xml"]
+        self.ui.browsepb.clicked.connect(self.open_file_catalogue)
 
-
-
-
-
-    def choose_output_directory(self):  # self.parent.data_dir
-        self.folderpath = QtWidgets.QFileDialog.getExistingDirectory(
-            self, caption='Choose Directory', directory=os.getcwd())
-        if self.folderpath != []:
-            print(self.folderpath)
-            self.ui.filenameEdit.setText(self.folderpath)
-            self.outpath = self.folderpath
-            self.ui.pushButton.setEnabled(True)
-            # Do Action
-        else:
-            self.ui.status_text.setText('No output directory selected')
 
 
     def open_file_catalogue(self):  # self.parent.data_dir
@@ -50,11 +37,11 @@ class DAQApp(QWidget):
             self, "Pick channel description file", "/daq/xfel/admtemp", 'xml (*.xml)', None, QtWidgets.QFileDialog.DontUseNativeDialog)
         if self.streampath_cat != "":
             filename_cat = os.path.basename(self.streampath_cat)
-            self.ui.filenameEdit2.setText(filename_cat)
-            self.ui.loadcataloguepb.setEnabled(
-                self.check_xml_filename(self.streampath_cat))
+            self.ui.filenameEdit.setText(filename_cat)
+            #self.ui.loadcataloguepb.setEnabled(
+            #    self.check_xml_filename(self.streampath_cat))
         else:
-            self.ui.filenameEdit2.setText('')
+            self.ui.filenameEdit.setText('')
 
     def nested_dict(self, n, type):
         if n == 1:
