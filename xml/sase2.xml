@@ -1,0 +1,11 @@
+<DAQREQ>
+<TStart time='2022-10-16T18:15:45'/>
+<TStop  time='2022-10-16T18:16:00'/>
+<Exp  name='linac'/>
+<Chan name='XFEL.DIAG/TIMINGINFO/TIME1.BUNCH_PATTERN'/>
+<Chan name= 'XFEL.DIAG/BPM/BPMA.2455.T3'/>
+<Chan name= 'XFEL.DIAG/BPM/BPMA.2467.T3'/>
+<Chan name= 'XFEL.FEL/XGM/XGM.2595.T6'/>
+<CDir name='/daq/xfel/admtemp'/>
+</DAQREQ>
+
