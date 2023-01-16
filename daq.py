@@ -17,6 +17,7 @@ from functools import reduce
 import pyarrow as pa
 import pyarrow.parquet as pq
 from collections import defaultdict
+import pydoocs
 
 
 class DAQApp(QWidget):
@@ -30,6 +31,10 @@ class DAQApp(QWidget):
         self.xml_name_matches = ["main", "run", "chan", "dscr", ".xml"]
         self.ui.browsepb.clicked.connect(self.open_file_catalogue)
 
+        self.ui.sequence_button.pressed.connect(self.append_text)
+
+    def append_text(self):
+        self.ui.textBrowser.append('Test')
 
 
     def open_file_catalogue(self):  # self.parent.data_dir
