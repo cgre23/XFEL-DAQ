@@ -17,6 +17,7 @@ from functools import reduce
 import pyarrow as pa
 import pyarrow.parquet as pq
 from collections import defaultdict
+from modules.spectr_gui import send_to_desy_elog
 import pydoocs
 
 
@@ -27,15 +28,47 @@ class DAQApp(QWidget):
         self.daterange = 0
         self.ui = Ui_Form()
         self.ui.setupUi(self)
+        self.logstring = []
+        self.sa1_sequence_address = 'XFEL.UTIL/TASKOMAT/SASE2LinkColors'
            
         self.xml_name_matches = ["main", "run", "chan", "dscr", ".xml"]
         self.ui.browsepb.clicked.connect(self.open_file_catalogue)
+        self.ui.sequence_button.setCheckable(True)
+        self.ui.sequence_button.clicked.connect(self.toggleButton)
 
-        self.ui.sequence_button.pressed.connect(self.append_text)
+                
 
-    def append_text(self):
-        self.ui.textBrowser.append('Test')
+    def toggleButton(self):
+        # if button is checked
+        if self.ui.sequence_button.isChecked():
+            # setting background color to blue
+            self.palette = self.ui.sequence_button.palette()
+            self.palette.setColor(QtGui.QPalette.Button, QtGui.QColor('blue'))
+            self.ui.sequence_button.setPalette(self.palette)
+            self.ui.sequence_button.setText("Stop SASE 1 DAQ")
+            self.start_sa1_sequence()
+        # if it is unchecked
+        else:
+            # set background color back to white
+            self.palette = self.ui.sequence_button.palette()
+            self.palette.setColor(QtGui.QPalette.Button, QtGui.QColor('white'))
+            self.ui.sequence_button.setPalette(self.palette)
+            self.ui.sequence_button.setText("Start SASE 1 DAQ")
 
+    def start_sa1_sequence(self):
+        pydoocs.write(self.sa1_sequence_address+'/RUN.ONCE', 1)
+
+
+        self.last_log = pydoocs.read(self.sa1_sequence_address+'/LOG_HTML.LAST')['data']
+        self.logstring.append(self.last_log)
+        self.ui.textBrowser.append(self.last_log)
+        
+
+         
+        #self.logbook_entry(widget=self.tab, text=self.logstring)
+
+
+    
 
     def open_file_catalogue(self):  # self.parent.data_dir
         self.streampath_cat, _ = QtWidgets.QFileDialog.getOpenFileName(
@@ -53,18 +86,6 @@ class DAQApp(QWidget):
             return defaultdict(type)
         else:
             return defaultdict(lambda: self.nested_dict(n-1, type))
-
-    def search_bar(self, s):
-        # Clear current selection.
-        self.ui.treeWidget_2.setCurrentItem(None)
-        if not s:
-            # Empty string, don't search.
-            return
-        matching_items = self.ui.treeWidget_2.findItems(s, Qt.MatchContains)
-        if matching_items:
-            # We have found something.
-            item = matching_items[0]  # Take the first.
-            self.ui.treeWidget_2.setCurrentItem(item)
 
     def check_xml_filename(self, path):
         if all(x in path for x in self.xml_name_matches):
@@ -98,6 +119,18 @@ class DAQApp(QWidget):
 
         return False
 
+    def logbook_entry(self, widget, text=""):
+        """
+        Method to send data + screenshot to eLogbook
+        :return:
+        """
+        #screenshot = self.get_screenshot(widget)
+        res = send_to_desy_elog(
+            author="", title="SA1 DAQ Sequence", severity="INFO", text=text, elog="xfellog")
+        if res == True:
+            self.ui.textBrowser.append('Finished scan! Logbook entry submitted.')
+        if not res:
+            self.ui.textBrowser.append('Finished scan! Error during eLogBook sending.')
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
