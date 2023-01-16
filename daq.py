@@ -29,7 +29,7 @@ class DAQApp(QWidget):
         self.ui = Ui_Form()
         self.ui.setupUi(self)
         self.logstring = []
-        self.sa1_sequence_address = 'XFEL.UTIL/TASKOMAT/SASE2LinkColors'
+        self.sa1_sequence_prefix = 'XFEL.UTIL/TASKOMAT/SASE2LinkColors'
            
         self.xml_name_matches = ["main", "run", "chan", "dscr", ".xml"]
         self.ui.browsepb.clicked.connect(self.open_file_catalogue)
@@ -45,27 +45,38 @@ class DAQApp(QWidget):
             self.palette = self.ui.sequence_button.palette()
             self.palette.setColor(QtGui.QPalette.Button, QtGui.QColor('blue'))
             self.ui.sequence_button.setPalette(self.palette)
-            self.ui.sequence_button.setText("Stop SASE 1 DAQ")
+            self.ui.sequence_button.setText("Force Stop SASE 1 DAQ")
             self.start_sa1_sequence()
         # if it is unchecked
-        else:
+        else: # Force Stop
             # set background color back to white
             self.palette = self.ui.sequence_button.palette()
             self.palette.setColor(QtGui.QPalette.Button, QtGui.QColor('white'))
             self.ui.sequence_button.setPalette(self.palette)
             self.ui.sequence_button.setText("Start SASE 1 DAQ")
 
+            # Force Stop sequence
+            #pydoocs.write(self.sa1_sequence_prefix+'/FORCESTOP', 1)
+            stop_log = datetime.now().isoformat()+': Force stopped Taskomat sequence.'
+            stop_log = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Force Stopped the Taskomat Sequence.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat())
+            self.logstring.append(stop_log)
+            self.ui.textBrowser.append(stop_log)
+            # Write to logbook
+            self.logbooktext = ''.join(self.logstring)
+            #self.logbook_entry(widget=self.tab, text=self.logbooktext)
+
     def start_sa1_sequence(self):
-        pydoocs.write(self.sa1_sequence_address+'/RUN.ONCE', 1)
+        #pydoocs.write(self.sa1_sequence_prefix+'/RUN.ONCE', 1)
 
 
-        self.last_log = pydoocs.read(self.sa1_sequence_address+'/LOG_HTML.LAST')['data']
+        self.last_log = pydoocs.read(self.sa1_sequence_prefix+'/LOG_HTML.LAST')['data']
+        print(self.last_log)
         self.logstring.append(self.last_log)
         self.ui.textBrowser.append(self.last_log)
         
 
          
-        #self.logbook_entry(widget=self.tab, text=self.logstring)
+        
 
 
     
@@ -81,11 +92,6 @@ class DAQApp(QWidget):
         else:
             self.ui.filenameEdit.setText('')
 
-    def nested_dict(self, n, type):
-        if n == 1:
-            return defaultdict(type)
-        else:
-            return defaultdict(lambda: self.nested_dict(n-1, type))
 
     def check_xml_filename(self, path):
         if all(x in path for x in self.xml_name_matches):
