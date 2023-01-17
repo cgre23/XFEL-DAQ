@@ -56,6 +56,9 @@
           <property name="text">
            <string>Start SASE 1 DAQ</string>
           </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
         <item>
@@ -75,6 +78,9 @@
          <widget class="QPushButton" name="convert_button">
           <property name="text">
            <string>Convert data</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
