@@ -16,13 +16,11 @@ import shutil
 import re
 from datetime import datetime
 from functools import reduce
-import pyarrow as pa
-import pyarrow.parquet as pq
 from collections import defaultdict
 from modules.spectr_gui import send_to_desy_elog
 import pydoocs
 import subprocess
-
+import time
 
 class DAQApp(QWidget):
     def __init__(self, parent=None):
@@ -33,7 +31,7 @@ class DAQApp(QWidget):
         self.ui.setupUi(self)
         self.logstring = []
         self.conversion_success = 0
-        self.sa1_sequence_prefix = 'XFEL.UTIL/TASKOMAT/SASE2LinkColors'
+        self.sa1_sequence_prefix = 'XFEL.UTIL/TASKOMAT/DAQ_SA1'
            
         self.xml_name_matches = ["main", "run", "chan", "dscr", ".xml"]
         self.ui.browsepb.clicked.connect(self.open_file_catalogue)
@@ -99,8 +97,10 @@ class DAQApp(QWidget):
             self.palette.setColor(QtGui.QPalette.Button, QtGui.QColor('blue'))
             self.ui.sequence_button.setPalette(self.palette)
             self.ui.sequence_button.setText("Force Stop SASE 1 DAQ")
+            t = threading.Thread(target=self.start_sa1_sequence)
+            t.daemon = True
+            t.start()
             
-            self.start_sa1_sequence()
         # if it is unchecked
         else: # Force Stop
             # set background color back to white
@@ -112,7 +112,7 @@ class DAQApp(QWidget):
             # Force Stop sequence
             try:
                 pydoocs.write(self.sa1_sequence_prefix+'/FORCESTOP', 1)
-                stop_log = datetime.now().isoformat()+': Taskomat sequence aborted.'
+                stop_log = datetime.now().isoformat()+': Aborted the Taskomat sequence.'
                 stop_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Aborted the Taskomat sequence.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat())
                 self.logstring.append(stop_log)
                 self.ui.textBrowser.append(stop_log_html)
@@ -185,11 +185,14 @@ class DAQApp(QWidget):
                 step6 = pydoocs.read(self.sa1_sequence_prefix+'/STEP006.RUNNING')['data']
                 if step1 != 0 or step2 != 0 or step3 != 0 or step4 != 0 or step5 != 0 or step6 != 0:
                     self.last_log = pydoocs.read(self.sa1_sequence_prefix+'/LOG_HTML.LAST')['data']
-                    print(self.last_log)
                     self.logstring.append(self.last_log)
                     self.ui.textBrowser.append(self.last_log)
+                time.sleep(1)
+            print('Finished')
+            self.ui.sequence_button.setChecked(False)
+            self.ui.sequence_button.setText("Start SASE 1 DAQ")
         except:
-            print('Not able to write to DOOCS.')
+            print('Not able to start Taskomat sequence.')
             start_log = datetime.now().isoformat()+': Not able to start Taskomat sequence.'
             start_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Not able to start Taskomat sequence.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat())
             self.logstring.append(start_log)
