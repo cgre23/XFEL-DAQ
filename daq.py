@@ -99,10 +99,7 @@ class DAQApp(QWidget):
             self.palette.setColor(QtGui.QPalette.Button, QtGui.QColor('blue'))
             self.ui.sequence_button.setPalette(self.palette)
             self.ui.sequence_button.setText("Force Stop SASE 1 DAQ")
-            start_log = datetime.now().isoformat()+': Started Taskomat sequence.'
-            start_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Started the Taskomat sequence.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat())
-            self.logstring.append(start_log)
-            self.ui.textBrowser.append(start_log_html)
+            
             self.start_sa1_sequence()
         # if it is unchecked
         else: # Force Stop
@@ -113,14 +110,19 @@ class DAQApp(QWidget):
             self.ui.sequence_button.setText("Start SASE 1 DAQ")
 
             # Force Stop sequence
-            #pydoocs.write(self.sa1_sequence_prefix+'/FORCESTOP', 1)
-            stop_log = datetime.now().isoformat()+': Force stopped Taskomat sequence.'
-            stop_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Force Stopped the Taskomat sequence.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat())
-            self.logstring.append(stop_log)
-            self.ui.textBrowser.append(stop_log_html)
-            # Write to logbook
-            self.logbooktext = ''.join(self.logstring)
-            #self.logbook_entry(widget=self.tab, text=self.logbooktext)
+            try:
+                pydoocs.write(self.sa1_sequence_prefix+'/FORCESTOP', 1)
+                stop_log = datetime.now().isoformat()+': Taskomat sequence aborted.'
+                stop_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Aborted the Taskomat sequence.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat())
+                self.logstring.append(stop_log)
+                self.ui.textBrowser.append(stop_log_html)
+                # Write to logbook
+                self.logbooktext = ''.join(self.logstring)
+                #self.logbook_entry(widget=self.tab, text=self.logbooktext)
+            except:
+                print('Not able to stop the sequence.')
+                stop_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Not able to stop the sequence.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat())
+                self.ui.textBrowser.append(stop_log_html)
 
     
 
@@ -166,41 +168,32 @@ class DAQApp(QWidget):
             self.q.task_done()
 
 
-    def conversionRAWtoHDF5(self, qin, qout):
-        try:
-            proc1 = subprocess.Popen(['python3', 'modules/hello.py'], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-            #proc1 = subprocess.run(command, shell=True, check=True, capture_output=True)
-            stdout, stderr = proc1.communicate()
-            exit_code = proc1.wait()
-            print(stdout, stderr, exit_code)
-            #streamdata = proc1.communicate()[0]
-        except FileNotFoundError as exc:
-            print(f"Process failed because the executable could not be found.\n{exc}")
-            return
-        except subprocess.CalledProcessError as exc:
-            print(f"Process failed because did not return a successful return code. " f"Returned {exc.returncode}\n{exc}")
-            return
-        
-        if self.ui.convert_button.isChecked() == False:
-            proc1.kill()
-            return 
-        
-        if proc1.returncode == 0:
-            self.conversion_success = 1
-            print('Converted successfully!')
-            self.ui.convert_button.setChecked(False)
-            #self.ui.convert_button.setText("Convert data")
-            self.toggleConvertButton()
-            return
-
     #@guiLoop
     def start_sa1_sequence(self):
-        #pydoocs.write(self.sa1_sequence_prefix+'/RUN.ONCE', 1)
-
-        self.last_log = pydoocs.read(self.sa1_sequence_prefix+'/LOG_HTML.LAST')['data']
-        print(self.last_log)
-        self.logstring.append(self.last_log)
-        self.ui.textBrowser.append(self.last_log)
+        try:
+            pydoocs.write(self.sa1_sequence_prefix+'/RUN.ONCE', 1)
+            start_log = datetime.now().isoformat()+': Started Taskomat sequence.'
+            start_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Started the Taskomat sequence.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat())
+            self.logstring.append(start_log)
+            self.ui.textBrowser.append(start_log_html)
+            while pydoocs.read(self.sa1_sequence_prefix+'/RUNNING')['data'] == 1:
+                step1 = pydoocs.read(self.sa1_sequence_prefix+'/STEP001.RUNNING')['data']
+                step2 = pydoocs.read(self.sa1_sequence_prefix+'/STEP002.RUNNING')['data']
+                step3 = pydoocs.read(self.sa1_sequence_prefix+'/STEP003.RUNNING')['data']
+                step4 = pydoocs.read(self.sa1_sequence_prefix+'/STEP004.RUNNING')['data']
+                step5 = pydoocs.read(self.sa1_sequence_prefix+'/STEP005.RUNNING')['data']
+                step6 = pydoocs.read(self.sa1_sequence_prefix+'/STEP006.RUNNING')['data']
+                if step1 != 0 or step2 != 0 or step3 != 0 or step4 != 0 or step5 != 0 or step6 != 0:
+                    self.last_log = pydoocs.read(self.sa1_sequence_prefix+'/LOG_HTML.LAST')['data']
+                    print(self.last_log)
+                    self.logstring.append(self.last_log)
+                    self.ui.textBrowser.append(self.last_log)
+        except:
+            print('Not able to write to DOOCS.')
+            start_log = datetime.now().isoformat()+': Not able to start Taskomat sequence.'
+            start_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Not able to start Taskomat sequence.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat())
+            self.logstring.append(start_log)
+            self.ui.textBrowser.append(start_log_html)
         
 
         
