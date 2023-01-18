@@ -39,8 +39,8 @@ class DAQApp(QWidget):
         self.ui.sequence_button.clicked.connect(self.toggleSequenceButton)
         self.conversionSettings = {'starttime': 'start', 'stoptime': 'stop', 'xmldfile': '/path', 'bunchfilter': 'all'}
         self.ui.convert_button.clicked.connect(self.toggleConvertButton)
-
-        self.q = queue.Queue()
+        self.ui.lastlog.setVisible(True)
+        #self.q = queue.Queue()
 
 
         
@@ -60,7 +60,7 @@ class DAQApp(QWidget):
             self.logstring.append(start_log)
             self.ui.textBrowser.append(start_log_html)
             cmd = 'python3 modules/hello.py'
-            self.q.put(0)
+            #self.q.put(0)
             t = threading.Thread(target=self.worker)
             t.daemon = True
             t.start()
@@ -144,7 +144,7 @@ class DAQApp(QWidget):
         
     def worker(self):
         while True:
-            item = self.q.get()
+            #item = self.q.get()
             #execute a task: call a shell program and wait until it completes
             try:
                 self.proc1 = subprocess.Popen(['python3', 'modules/hello.py'], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -165,10 +165,8 @@ class DAQApp(QWidget):
                 #self.ui.convert_button.setText("Convert data")
                 self.toggleConvertButton()
                 return
-            self.q.task_done()
+            #self.q.task_done()
 
-
-    #@guiLoop
     def start_sa1_sequence(self):
         try:
             pydoocs.write(self.sa1_sequence_prefix+'/RUN.ONCE', 1)
@@ -177,17 +175,9 @@ class DAQApp(QWidget):
             self.logstring.append(start_log)
             self.ui.textBrowser.append(start_log_html)
             while pydoocs.read(self.sa1_sequence_prefix+'/RUNNING')['data'] == 1:
-                step1 = pydoocs.read(self.sa1_sequence_prefix+'/STEP001.RUNNING')['data']
-                step2 = pydoocs.read(self.sa1_sequence_prefix+'/STEP002.RUNNING')['data']
-                step3 = pydoocs.read(self.sa1_sequence_prefix+'/STEP003.RUNNING')['data']
-                step4 = pydoocs.read(self.sa1_sequence_prefix+'/STEP004.RUNNING')['data']
-                step5 = pydoocs.read(self.sa1_sequence_prefix+'/STEP005.RUNNING')['data']
-                step6 = pydoocs.read(self.sa1_sequence_prefix+'/STEP006.RUNNING')['data']
-                if step1 != 0 or step2 != 0 or step3 != 0 or step4 != 0 or step5 != 0 or step6 != 0:
-                    self.last_log = pydoocs.read(self.sa1_sequence_prefix+'/LOG_HTML.LAST')['data']
-                    self.logstring.append(self.last_log)
-                    self.ui.textBrowser.append(self.last_log)
-                time.sleep(1)
+                self.ui.lastlog.setHtml(pydoocs.read(self.sa1_sequence_prefix+'/LOG_HTML.LAST')['data'])
+                self.ui.lastlog.textChanged.connect(self.updatetaskomatlogs)
+                time.sleep(0.05)
             print('Finished')
             self.ui.sequence_button.setChecked(False)
             self.ui.sequence_button.setText("Start SASE 1 DAQ")
@@ -199,7 +189,11 @@ class DAQApp(QWidget):
             self.ui.textBrowser.append(start_log_html)
         
 
-        
+    def updatetaskomatlogs(self):
+        self.last_log = pydoocs.read(self.sa1_sequence_prefix+'/LOG_HTML.LAST')['data']
+        self.logstring.append(self.last_log)
+        self.ui.textBrowser.append(self.last_log)
+
 
     def open_file_catalogue(self):  # self.parent.data_dir
         self.streampath_cat, _ = QtWidgets.QFileDialog.getOpenFileName(

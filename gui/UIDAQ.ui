@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>635</width>
-    <height>356</height>
+    <height>364</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -38,7 +38,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -164,6 +164,19 @@
         </property>
         <property name="text">
          <string>Apply bunch filtering by destination?</string>
+        </property>
+       </widget>
+       <widget class="QTextEdit" name="lastlog">
+        <property name="geometry">
+         <rect>
+          <x>30</x>
+          <y>230</y>
+          <width>104</width>
+          <height>51</height>
+         </rect>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
         </property>
        </widget>
       </widget>

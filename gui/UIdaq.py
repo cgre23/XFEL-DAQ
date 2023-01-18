@@ -12,7 +12,7 @@ class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
         Form.setEnabled(True)
-        Form.resize(635, 356)
+        Form.resize(635, 364)
         Form.setMinimumSize(QtCore.QSize(0, 0))
         Form.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         Form.setWindowOpacity(1.0)
@@ -67,11 +67,15 @@ class Ui_Form(object):
         self.radioButton = QtWidgets.QRadioButton(self.groupBox_2)
         self.radioButton.setGeometry(QtCore.QRect(29, 120, 301, 20))
         self.radioButton.setObjectName("radioButton")
+        self.lastlog = QtWidgets.QTextEdit(self.groupBox_2)
+        self.lastlog.setGeometry(QtCore.QRect(30, 230, 104, 51))
+        self.lastlog.setReadOnly(True)
+        self.lastlog.setObjectName("lastlog")
         self.gridLayout_2.addWidget(self.groupBox_2, 0, 0, 1, 1)
         self.tabWidget.addTab(self.tab_2, "")
 
         self.retranslateUi(Form)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
