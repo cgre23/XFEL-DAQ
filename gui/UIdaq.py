@@ -71,15 +71,6 @@ class Ui_Form(object):
         self.gridLayout_2.addWidget(self.groupBox_2, 0, 0, 1, 1)
         self.tabWidget.addTab(self.tab_2, "")
         self.gridLayout.addWidget(self.tabWidget, 0, 0, 1, 1)
-        self.groupBox_3 = QtWidgets.QGroupBox(Form)
-        self.groupBox_3.setObjectName("groupBox_3")
-        self.horizontalLayout = QtWidgets.QHBoxLayout(self.groupBox_3)
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.textEdit = QtWidgets.QTextEdit(self.groupBox_3)
-        self.textEdit.setReadOnly(True)
-        self.textEdit.setObjectName("textEdit")
-        self.horizontalLayout.addWidget(self.textEdit)
-        self.gridLayout.addWidget(self.groupBox_3, 1, 0, 1, 1)
 
         self.retranslateUi(Form)
         self.tabWidget.setCurrentIndex(0)
@@ -97,5 +88,4 @@ class Ui_Form(object):
         self.browsepb.setText(_translate("Form", "Browse"))
         self.radioButton.setText(_translate("Form", "Apply bunch filtering by destination?"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("Form", "Settings"))
-        self.groupBox_3.setTitle(_translate("Form", "GroupBox"))
 
