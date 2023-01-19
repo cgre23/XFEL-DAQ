@@ -38,7 +38,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -167,10 +167,13 @@
         </property>
        </widget>
        <widget class="QTextEdit" name="lastlog">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="geometry">
          <rect>
-          <x>30</x>
-          <y>230</y>
+          <x>20</x>
+          <y>250</y>
           <width>104</width>
           <height>51</height>
          </rect>
@@ -179,6 +182,11 @@
          <bool>true</bool>
         </property>
        </widget>
+       <zorder>lastlog</zorder>
+       <zorder>label_3</zorder>
+       <zorder>filenameEdit</zorder>
+       <zorder>browsepb</zorder>
+       <zorder>radioButton</zorder>
       </widget>
      </item>
     </layout>

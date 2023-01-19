@@ -39,14 +39,10 @@ class DAQApp(QWidget):
         self.ui.sequence_button.clicked.connect(self.toggleSequenceButton)
         self.conversionSettings = {'starttime': 'start', 'stoptime': 'stop', 'xmldfile': '/path', 'bunchfilter': 'all'}
         self.ui.convert_button.clicked.connect(self.toggleConvertButton)
-        self.ui.lastlog.setVisible(True)
-        #self.q = queue.Queue()
+        self.ui.lastlog.setVisible(False)
+        self.q = queue.Queue()
 
 
-        
-
-    
-    
     def toggleConvertButton(self):
         # if button is checked
         if self.ui.convert_button.isChecked():
@@ -59,11 +55,12 @@ class DAQApp(QWidget):
             start_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Started the file conversion.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat())
             self.logstring.append(start_log)
             self.ui.textBrowser.append(start_log_html)
-            cmd = 'python3 modules/hello.py'
-            #self.q.put(0)
-            t = threading.Thread(target=self.worker)
+            cmd = 'modules/hello.py'
+            self.q.put(cmd)
+            t = threading.Thread(target=self.convertHDF5)
             t.daemon = True
             t.start()
+            
             #self.conversionRAWtoHDF5('python3 modules/hello.py')
         # if it is unchecked
         else: # Force Stop
@@ -100,6 +97,8 @@ class DAQApp(QWidget):
             t = threading.Thread(target=self.start_sa1_sequence)
             t.daemon = True
             t.start()
+            self.logbooktext = ''.join(self.logstring)
+            #self.logbook_entry(widget=self.tab, text=self.logbooktext)
             
         # if it is unchecked
         else: # Force Stop
@@ -124,30 +123,14 @@ class DAQApp(QWidget):
                 stop_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Not able to stop the sequence.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat())
                 self.ui.textBrowser.append(stop_log_html)
 
-    
-
-    def conversion(self, command):
-        with subprocess.Popen(['python3', 'modules/hello.py'], stdout=subprocess.PIPE, bufsize=1, universal_newlines=True) as p:
-            for line in p.stdout:
-                print(line, end='') # process line here
         
-        if p.returncode != 0:
-            raise subprocess.CalledProcessError(p.returncode, p.args)
-
-        if p.returncode == 0:
-            self.conversion_success = 1
-            print('Converted successfully!')
-            self.ui.convert_button.setChecked(False)
-            #self.ui.convert_button.setText("Convert data")
-            self.toggleConvertButton()
-            return
-        
-    def worker(self):
+    def convertHDF5(self):
         while True:
-            #item = self.q.get()
+            item = self.q.get()
+            print(item)
             #execute a task: call a shell program and wait until it completes
             try:
-                self.proc1 = subprocess.Popen(['python3', 'modules/hello.py'], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+                self.proc1 = subprocess.Popen(['python3', item], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
                 stdout, stderr = self.proc1.communicate()
                 print(stdout)
             except FileNotFoundError as exc:
@@ -156,8 +139,6 @@ class DAQApp(QWidget):
             except subprocess.CalledProcessError as exc:
                 print(f"Process failed because did not return a successful return code. " f"Returned {exc.returncode}\n{exc}")
                 return
-            
-          
             if self.proc1.returncode == 0:
                 self.conversion_success = 1
                 print('Converted successfully!')
@@ -187,6 +168,8 @@ class DAQApp(QWidget):
             start_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Not able to start Taskomat sequence.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat())
             self.logstring.append(start_log)
             self.ui.textBrowser.append(start_log_html)
+            self.ui.sequence_button.setChecked(False)
+            self.ui.sequence_button.setText("Start SASE 1 DAQ")
         
 
     def updatetaskomatlogs(self):
@@ -246,11 +229,13 @@ class DAQApp(QWidget):
         """
         #screenshot = self.get_screenshot(widget)
         res = send_to_desy_elog(
-            author="", title="SA1 DAQ Sequence", severity="INFO", text=text, elog="xfellog")
+            author="", title="SA1 DAQ Measurement", severity="INFO", text=text, elog="xfellog")
         if res == True:
-            self.ui.textBrowser.append('Finished scan! Logbook entry submitted.')
+            success_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Finished scan! Logbook entry submitted. <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat())
+            self.ui.textBrowser.append(success_log_html)
         if not res:
-            self.ui.textBrowser.append('Finished scan! Error during eLogBook sending.')
+            error_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Finished scan! Error sending eLogBook entry. <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat())
+            self.ui.textBrowser.append(error_log_html)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

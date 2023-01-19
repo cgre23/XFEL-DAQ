@@ -68,14 +68,20 @@ class Ui_Form(object):
         self.radioButton.setGeometry(QtCore.QRect(29, 120, 301, 20))
         self.radioButton.setObjectName("radioButton")
         self.lastlog = QtWidgets.QTextEdit(self.groupBox_2)
-        self.lastlog.setGeometry(QtCore.QRect(30, 230, 104, 51))
+        self.lastlog.setEnabled(True)
+        self.lastlog.setGeometry(QtCore.QRect(20, 250, 104, 51))
         self.lastlog.setReadOnly(True)
         self.lastlog.setObjectName("lastlog")
+        self.lastlog.raise_()
+        self.label_3.raise_()
+        self.filenameEdit.raise_()
+        self.browsepb.raise_()
+        self.radioButton.raise_()
         self.gridLayout_2.addWidget(self.groupBox_2, 0, 0, 1, 1)
         self.tabWidget.addTab(self.tab_2, "")
 
         self.retranslateUi(Form)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
