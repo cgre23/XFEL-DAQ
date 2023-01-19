@@ -158,14 +158,12 @@ class DAQApp(QWidget):
             start_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Started the Taskomat sequence.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat(' ', 'seconds'))
             self.logstring.append(start_log)
             self.ui.textBrowser.append(start_log_html)
+            self.ui.textEdit.textChanged.connect(self.updatetaskomatlogs)
             while pydoocs.read(self.sa1_sequence_prefix+'/RUNNING')['data'] == 1:
-                self.ui.step1.setValue(pydoocs.read(self.sa1_sequence_prefix+'/STEP002.RUNNING')['data'])
-                self.ui.step2.setValue(pydoocs.read(self.sa1_sequence_prefix+'/STEP003.RUNNING')['data'])
-                self.ui.step3.setValue(pydoocs.read(self.sa1_sequence_prefix+'/STEP004.RUNNING')['data'])
+                self.ui.textEdit.setText(pydoocs.read(self.sa1_sequence_prefix+'/LOG.LAST')['data'])
                 
-                self.ui.step1.valueChanged.connect(self.updatetaskomatlogs)
-                self.ui.step2.valueChanged.connect(self.updatetaskomatlogs)
-                self.ui.step3.valueChanged.connect(self.updatetaskomatlogs)
+                
+                
                 time.sleep(0.05)
             #    self.ui.lastlog.setText(pydoocs.read(self.sa1_sequence_prefix+'/LOG.LAST')['data'])
                  #pass
