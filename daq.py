@@ -39,7 +39,6 @@ class DAQApp(QWidget):
         self.ui.sequence_button.clicked.connect(self.toggleSequenceButton)
         self.conversionSettings = {'starttime': 'start', 'stoptime': 'stop', 'xmldfile': '/path', 'bunchfilter': 'all'}
         self.ui.convert_button.clicked.connect(self.toggleConvertButton)
-        
         self.q = queue.Queue()
 
 
@@ -158,16 +157,13 @@ class DAQApp(QWidget):
             start_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Started the Taskomat sequence.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat(' ', 'seconds'))
             self.logstring.append(start_log)
             self.ui.textBrowser.append(start_log_html)
-            self.ui.textEdit.textChanged.connect(self.updatetaskomatlogs)
+            
             while pydoocs.read(self.sa1_sequence_prefix+'/RUNNING')['data'] == 1:
-                self.ui.textEdit.setText(pydoocs.read(self.sa1_sequence_prefix+'/LOG.LAST')['data'])
-                
-                
-                
-                time.sleep(0.05)
-            #    self.ui.lastlog.setText(pydoocs.read(self.sa1_sequence_prefix+'/LOG.LAST')['data'])
+                log = pydoocs.read(self.sa1_sequence_prefix+'/LOG.LAST')['data']
+                if log not in self.ui.textBrowser.toPlainText():
+                    self.ui.textBrowser.append(pydoocs.read(self.sa1_sequence_prefix+'/LOG_HTML.LAST')['data'])
+                #time.sleep(0.01)
                  #pass
-                
             self.updatetaskomatlogs()	 
             self.ui.sequence_button.setChecked(False)
             self.ui.sequence_button.setText("Start SASE 1 DAQ")

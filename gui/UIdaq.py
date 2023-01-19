@@ -76,6 +76,7 @@ class Ui_Form(object):
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.groupBox_3)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.textEdit = QtWidgets.QTextEdit(self.groupBox_3)
+        self.textEdit.setReadOnly(True)
         self.textEdit.setObjectName("textEdit")
         self.horizontalLayout.addWidget(self.textEdit)
         self.gridLayout.addWidget(self.groupBox_3, 1, 0, 1, 1)
