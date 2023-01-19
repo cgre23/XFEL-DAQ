@@ -39,7 +39,7 @@ class DAQApp(QWidget):
         self.ui.sequence_button.clicked.connect(self.toggleSequenceButton)
         self.conversionSettings = {'starttime': 'start', 'stoptime': 'stop', 'xmldfile': '/path', 'bunchfilter': 'all'}
         self.ui.convert_button.clicked.connect(self.toggleConvertButton)
-        self.ui.lastlog.setVisible(False)
+        
         self.q = queue.Queue()
 
 
@@ -51,8 +51,8 @@ class DAQApp(QWidget):
             self.palette.setColor(QtGui.QPalette.Button, QtGui.QColor('blue'))
             self.ui.convert_button.setPalette(self.palette)
             self.ui.convert_button.setText("Force Stop File Conversion")
-            start_log = datetime.now().isoformat()+': Started file conversion.'
-            start_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Started the file conversion.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat())
+            start_log = datetime.now().isoformat(' ', 'seconds')+': Started file conversion.\n'
+            start_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Started the file conversion.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat(' ', 'seconds'))
             self.logstring.append(start_log)
             self.ui.textBrowser.append(start_log_html)
             cmd = 'modules/hello.py'
@@ -70,21 +70,23 @@ class DAQApp(QWidget):
             self.ui.convert_button.setPalette(self.palette)
             self.ui.convert_button.setText("Convert data")
             if self.conversion_success == 1:
-                stop_log = datetime.now().isoformat()+': Converted file successfully!'
-                stop_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Converted file successfully!  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat())
+                stop_log = datetime.now().isoformat(' ', 'seconds')+': Converted file successfully!\n'
+                stop_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Converted file successfully!  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat(' ', 'seconds'))
                 self.logstring.append(stop_log)
                 self.ui.textBrowser.append(stop_log_html)
+                self.logbooktext = ''.join(self.logstring)
+                self.logbook_entry(text=self.logbooktext)
                 self.conversion_success = 0
             else:
                 # Force Stop conversion
                 self.proc1.kill()
-                stop_log = datetime.now().isoformat()+': Force stopped file conversion.'
-                stop_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Force Stopped the file conversion.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat())
+                stop_log = datetime.now().isoformat(' ', 'seconds')+': Force stopped file conversion.\n'
+                stop_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Force Stopped the file conversion.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat(' ', 'seconds'))
                 self.logstring.append(stop_log)
                 self.ui.textBrowser.append(stop_log_html)
                 # Write to logbook
                 self.logbooktext = ''.join(self.logstring)
-            #self.logbook_entry(widget=self.tab, text=self.logbooktext)
+            	#self.logbook_entry(widget=self.tab, text=self.logbooktext)
 
     def toggleSequenceButton(self):
         # if button is checked
@@ -97,6 +99,7 @@ class DAQApp(QWidget):
             t = threading.Thread(target=self.start_sa1_sequence)
             t.daemon = True
             t.start()
+            
             self.logbooktext = ''.join(self.logstring)
             #self.logbook_entry(widget=self.tab, text=self.logbooktext)
             
@@ -111,16 +114,16 @@ class DAQApp(QWidget):
             # Force Stop sequence
             try:
                 pydoocs.write(self.sa1_sequence_prefix+'/FORCESTOP', 1)
-                stop_log = datetime.now().isoformat()+': Aborted the Taskomat sequence.'
-                stop_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Aborted the Taskomat sequence.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat())
+                stop_log = datetime.now().isoformat(' ', 'seconds')+': Aborted the Taskomat sequence.\n'
+                stop_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Aborted the Taskomat sequence.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat(' ', 'seconds'))
                 self.logstring.append(stop_log)
                 self.ui.textBrowser.append(stop_log_html)
                 # Write to logbook
                 self.logbooktext = ''.join(self.logstring)
                 #self.logbook_entry(widget=self.tab, text=self.logbooktext)
             except:
-                print('Not able to stop the sequence.')
-                stop_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Not able to stop the sequence.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat())
+                print('Not able to stop the sequence.\n')
+                stop_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Not able to stop the sequence.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat(' ', 'seconds'))
                 self.ui.textBrowser.append(stop_log_html)
 
         
@@ -151,21 +154,29 @@ class DAQApp(QWidget):
     def start_sa1_sequence(self):
         try:
             pydoocs.write(self.sa1_sequence_prefix+'/RUN.ONCE', 1)
-            start_log = datetime.now().isoformat()+': Started Taskomat sequence.'
-            start_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Started the Taskomat sequence.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat())
+            start_log = datetime.now().isoformat(' ', 'seconds')+': Started Taskomat sequence.\n'
+            start_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Started the Taskomat sequence.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat(' ', 'seconds'))
             self.logstring.append(start_log)
             self.ui.textBrowser.append(start_log_html)
             while pydoocs.read(self.sa1_sequence_prefix+'/RUNNING')['data'] == 1:
-                self.ui.lastlog.setHtml(pydoocs.read(self.sa1_sequence_prefix+'/LOG_HTML.LAST')['data'])
-                self.ui.lastlog.textChanged.connect(self.updatetaskomatlogs)
+                self.ui.step1.setValue(pydoocs.read(self.sa1_sequence_prefix+'/STEP002.RUNNING')['data'])
+                self.ui.step2.setValue(pydoocs.read(self.sa1_sequence_prefix+'/STEP003.RUNNING')['data'])
+                self.ui.step3.setValue(pydoocs.read(self.sa1_sequence_prefix+'/STEP004.RUNNING')['data'])
                 time.sleep(0.05)
-            print('Finished')
+                self.ui.step1.valueChanged.connect(self.updatetaskomatlogs)
+                self.ui.step2.valueChanged.connect(self.updatetaskomatlogs)
+                self.ui.step3.valueChanged.connect(self.updatetaskomatlogs)
+            #    self.ui.lastlog.setText(pydoocs.read(self.sa1_sequence_prefix+'/LOG.LAST')['data'])
+                 #pass
+                
+            self.updatetaskomatlogs()	 
             self.ui.sequence_button.setChecked(False)
             self.ui.sequence_button.setText("Start SASE 1 DAQ")
+            
         except:
             print('Not able to start Taskomat sequence.')
-            start_log = datetime.now().isoformat()+': Not able to start Taskomat sequence.'
-            start_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Not able to start Taskomat sequence.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat())
+            start_log = datetime.now().isoformat(' ', 'seconds')+': Not able to start Taskomat sequence.\n'
+            start_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Not able to start Taskomat sequence.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat(' ', 'seconds'))
             self.logstring.append(start_log)
             self.ui.textBrowser.append(start_log_html)
             self.ui.sequence_button.setChecked(False)
@@ -173,9 +184,10 @@ class DAQApp(QWidget):
         
 
     def updatetaskomatlogs(self):
-        self.last_log = pydoocs.read(self.sa1_sequence_prefix+'/LOG_HTML.LAST')['data']
-        self.logstring.append(self.last_log)
-        self.ui.textBrowser.append(self.last_log)
+        self.last_log_html = pydoocs.read(self.sa1_sequence_prefix+'/LOG_HTML.LAST')['data']
+        self.last_log = pydoocs.read(self.sa1_sequence_prefix+'/LOG.LAST')['data']
+        self.logstring.append(self.last_log+'\n')
+        self.ui.textBrowser.append(self.last_log_html)
 
 
     def open_file_catalogue(self):  # self.parent.data_dir
@@ -222,7 +234,7 @@ class DAQApp(QWidget):
 
         return False
 
-    def logbook_entry(self, widget, text=""):
+    def logbook_entry(self, text=""):
         """
         Method to send data + screenshot to eLogbook
         :return:
@@ -231,10 +243,10 @@ class DAQApp(QWidget):
         res = send_to_desy_elog(
             author="", title="SA1 DAQ Measurement", severity="INFO", text=text, elog="xfellog")
         if res == True:
-            success_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Finished scan! Logbook entry submitted. <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat())
+            success_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Finished scan! Logbook entry submitted. <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat(' ', 'seconds'))
             self.ui.textBrowser.append(success_log_html)
         if not res:
-            error_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Finished scan! Error sending eLogBook entry. <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat())
+            error_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Finished scan! Error sending eLogBook entry. <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat(' ', 'seconds'))
             self.ui.textBrowser.append(error_log_html)
 
 if __name__ == "__main__":
