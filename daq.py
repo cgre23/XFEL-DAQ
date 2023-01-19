@@ -85,7 +85,7 @@ class DAQApp(QWidget):
                 self.ui.textBrowser.append(stop_log_html)
                 # Write to logbook
                 self.logbooktext = ''.join(self.logstring)
-            	#self.logbook_entry(widget=self.tab, text=self.logbooktext)
+                #self.logbook_entry(text=self.logbooktext)
 
     def toggleSequenceButton(self):
         # if button is checked
@@ -162,9 +162,10 @@ class DAQApp(QWidget):
                 log = pydoocs.read(self.sa1_sequence_prefix+'/LOG.LAST')['data']
                 if log not in self.ui.textBrowser.toPlainText():
                     self.ui.textBrowser.append(pydoocs.read(self.sa1_sequence_prefix+'/LOG_HTML.LAST')['data'])
-                #time.sleep(0.01)
+                    self.logstring.append(pydoocs.read(self.sa1_sequence_prefix+'/LOG.LAST')['data']+'\n')
+                    time.sleep(0.01)
                  #pass
-            self.updatetaskomatlogs()	 
+            self.updatetaskomatlogs()
             self.ui.sequence_button.setChecked(False)
             self.ui.sequence_button.setText("Start SASE 1 DAQ")
             
