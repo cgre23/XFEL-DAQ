@@ -162,10 +162,11 @@ class DAQApp(QWidget):
                 self.ui.step1.setValue(pydoocs.read(self.sa1_sequence_prefix+'/STEP002.RUNNING')['data'])
                 self.ui.step2.setValue(pydoocs.read(self.sa1_sequence_prefix+'/STEP003.RUNNING')['data'])
                 self.ui.step3.setValue(pydoocs.read(self.sa1_sequence_prefix+'/STEP004.RUNNING')['data'])
-                time.sleep(0.05)
+                
                 self.ui.step1.valueChanged.connect(self.updatetaskomatlogs)
                 self.ui.step2.valueChanged.connect(self.updatetaskomatlogs)
                 self.ui.step3.valueChanged.connect(self.updatetaskomatlogs)
+                time.sleep(0.05)
             #    self.ui.lastlog.setText(pydoocs.read(self.sa1_sequence_prefix+'/LOG.LAST')['data'])
                  #pass
                 
