@@ -15,6 +15,7 @@ import threading, queue
 import shutil
 import re
 from datetime import datetime
+from dateutil import tz
 from functools import reduce
 from collections import defaultdict
 from modules.spectr_gui import send_to_desy_elog
@@ -165,7 +166,8 @@ class DAQApp(QWidget):
                     self.logstring.append(pydoocs.read(self.sa1_sequence_prefix+'/LOG.LAST')['data']+'\n')
                     time.sleep(0.01)
                  #pass
-            self.updatetaskomatlogs()
+            self.update_taskomat_logs()
+            self.read_start_stop_time()
             self.ui.sequence_button.setChecked(False)
             self.ui.sequence_button.setText("Start SASE 1 DAQ")
             
@@ -179,11 +181,33 @@ class DAQApp(QWidget):
             self.ui.sequence_button.setText("Start SASE 1 DAQ")
         
 
-    def updatetaskomatlogs(self):
+    def update_taskomat_logs(self):
         self.last_log_html = pydoocs.read(self.sa1_sequence_prefix+'/LOG_HTML.LAST')['data']
         self.last_log = pydoocs.read(self.sa1_sequence_prefix+'/LOG.LAST')['data']
         self.logstring.append(self.last_log+'\n')
         self.ui.textBrowser.append(self.last_log_html)
+
+    def read_start_stop_time(self):
+        from_zone = tz.gettz('UTC')
+        to_zone = tz.gettz('Europe/Vienna')
+        start_time_utc = pydoocs.read(self.sa1_sequence_prefix+'/STEP004.EXECUTION')['data']
+        stop_time_utc = pydoocs.read(self.sa1_sequence_prefix+'/STEP005.EXECUTION')['data']
+
+        # Tell the datetime object that it's in UTC time zone since 
+        # datetime objects are 'naive' by default
+        utc_t1 = datetime.strptime(start_time_utc, '%Y-%m-%d %H:%M:%S UTC')
+        utc_t1 = utc_t1.replace(tzinfo=from_zone)
+
+        utc_t2 = datetime.strptime(stop_time_utc, '%Y-%m-%d %H:%M:%S UTC')
+        utc_t2 = utc_t2.replace(tzinfo=from_zone)
+
+        # Convert time zone and change to isoformat
+        self.local_start = utc_t1.astimezone(to_zone).replace(tzinfo=None).isoformat()
+        self.local_stop = utc_t2.astimezone(to_zone).replace(tzinfo=None).isoformat()
+        print(start_time_utc, self.local_start)
+        print(stop_time_utc, self.local_stop)
+        #self.logstring.append(self.last_log+'\n')
+        #self.ui.textBrowser.append(self.last_log_html)
 
 
     def open_file_catalogue(self):  # self.parent.data_dir
