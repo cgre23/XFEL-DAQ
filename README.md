@@ -1,6 +1,6 @@
-# XFEL-DAQ
+# EuXFEL Data Acquisition module
 
 Author: Christian Grech (christian.grech@desy.de), Farzad Jafarinia (farzad.jafarinia@desy.de)
 
-Software to convert raw DAQ files from XFEL DAQ Datastreams to hdf5.
+A Software module to automatically acquire data in one of the beamlines and to convert raw DAQ files to hdf5.
 
