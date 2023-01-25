@@ -7,9 +7,9 @@ nav:
     - Home: index.md
     - Instructions: installation.md
     - Channel list:
-      - SASE1: channel_list/sase1.md
-      - SASE2: channel_list/sase2.md
-      - SASE3: channel_list/sase3.md
+      - SASE1 channel list: channel_list/sase1.md
+      - SASE2 channel list: channel_list/sase2.md
+      - SASE3 channel list: channel_list/sase3.md
 
 
 theme:
