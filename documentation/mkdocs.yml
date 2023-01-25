@@ -8,8 +8,8 @@ nav:
     - Instructions: installation.md
     - Channel list:
       - SASE1: api/sase1.md
-      - SASE2: api/sase1.md
-      - SASE3: api/sase1.md
+      - SASE2: api/sase2.md
+      - SASE3: api/sase3.md
 
 
 theme:
