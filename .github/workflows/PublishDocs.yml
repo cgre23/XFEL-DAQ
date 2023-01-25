@@ -1,4 +1,4 @@
-name: ci 
+name: PublishDocs
 on:
   push:
     branches:
