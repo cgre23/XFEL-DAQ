@@ -5,9 +5,11 @@ repo_name: cgre23/XFEL-DAQ
 
 nav:
     - Home: index.md
-    - Installation: installation.md
-    - API:
-      - Xopt: api/xopt.md
+    - Instructions: installation.md
+    - Channel list:
+      - SASE1: api/sase1.md
+      - SASE2: api/sase1.md
+      - SASE3: api/sase1.md
 
 
 theme:
