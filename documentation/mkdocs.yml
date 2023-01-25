@@ -6,7 +6,6 @@ repo_name: cgre23/XFEL-DAQ
 nav:
     - Home: index.md
     - Installation: installation.md
-
     - API:
       - Xopt: api/xopt.md
 
@@ -15,7 +14,6 @@ theme:
   icon:
     repo: fontawesome/brands/github
   name: material
-
   custom_dir: overrides
   features:
     - navigation.top
