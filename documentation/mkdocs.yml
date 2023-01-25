@@ -1,6 +1,6 @@
 site_name: European XFEL DAQ Datastream
 repo_url: https://github.com/cgre23/XFEL-DAQ
-repo_name: ChristopherMayes/Xopt
+repo_name: cgre23/XFEL-DAQ
 
 
 nav:
@@ -51,4 +51,3 @@ extra_css:
 
 plugins:
     - search
-
