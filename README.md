@@ -4,9 +4,9 @@
 
 # Bmad-X
 
-Author: Christian Grech (christian.grech@desy.de), Farzad Jafarinia (farzad.jafarinia@desy.de)
+Author: Christian Grech (christian.grech@desy.de), Farzad Jafarinia (farzad.jafarinia@desy.de), Vladimir Rybnikov (vladimir.rybnikov@desy.de)
 
-A Software module to automatically acquire data in one of the beamlines and to convert raw DAQ files to hdf5.
+A Software module to automatically acquire data in one of the SASE beamlines and to convert raw DAQ files to hdf5.
 
 Installation
 ============
