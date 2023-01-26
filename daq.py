@@ -10,7 +10,6 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QApplication, QFileDialog
 from gui.UIdaq import Ui_Form
-from modules.guiLoop import guiLoop
 import threading, queue
 import shutil
 import re
@@ -68,7 +67,6 @@ class DAQApp(QWidget):
             t = threading.Thread(target=self.convertHDF5)
             t.daemon = True
             t.start()
-            
             #self.conversionRAWtoHDF5('python3 modules/hello.py')
         # if it is unchecked
         else: # Force Stop
@@ -107,7 +105,6 @@ class DAQApp(QWidget):
             t = threading.Thread(target=self.start_sa1_sequence)
             t.daemon = True
             t.start()
-            
             self.logbooktext = ''.join(self.logstring)
             #self.logbook_entry(widget=self.tab, text=self.logbooktext)
             
@@ -118,7 +115,6 @@ class DAQApp(QWidget):
             self.palette.setColor(QtGui.QPalette.Button, QtGui.QColor('white'))
             self.ui.sequence_button.setPalette(self.palette)
             self.ui.sequence_button.setText("Start SASE 1 DAQ")
-
             # Force Stop sequence
             try:
                 pydoocs.write(self.sa1_sequence_prefix+'/FORCESTOP', 1)
@@ -166,7 +162,6 @@ class DAQApp(QWidget):
             start_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Started the Taskomat sequence.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat(' ', 'seconds'))
             self.logstring.append(start_log)
             self.ui.textBrowser.append(start_log_html)
-            
             while pydoocs.read(self.sa1_sequence_prefix+'/RUNNING')['data'] == 1:
                 log = pydoocs.read(self.sa1_sequence_prefix+'/LOG.LAST')['data']
                 if log not in self.ui.textBrowser.toPlainText():
@@ -177,7 +172,6 @@ class DAQApp(QWidget):
             self.update_taskomat_logs()
             self.ui.sequence_button.setChecked(False)
             self.ui.sequence_button.setText("Start SASE 1 DAQ")
-            
         except:
             print('Not able to start Taskomat sequence.')
             start_log = datetime.now().isoformat(' ', 'seconds')+': Not able to start Taskomat sequence.\n'
