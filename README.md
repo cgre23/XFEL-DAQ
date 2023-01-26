@@ -16,5 +16,4 @@ Installation is restricted to Linux PCs connected the DESY network.
 git clone https://github.com/cgre23/XFEL-DAQ.git
 conda env create -f environment.yml
 conda activate python37
-pip install --no-dependencies -e .
 ```
