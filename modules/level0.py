@@ -40,7 +40,7 @@ def create_xml(filename, start_time, stop_time, stream_name, channel_list):
             <TStop  time='${stoptime}'/>
             <Exp  name='${exp}'/>
             ${document_list}
-            <CDir name='/home/grechc/Documents/Datastream/admtemp' />
+            <CDir name='/daq/xfel/adm'/>
             </DAQREQ>
              """)
     inner_contents = [inner_template.substitute(
@@ -205,7 +205,7 @@ if __name__ == "__main__":
     stopstring = stop.replace('-', '')
     stopstring = stopstring.replace(':', '')
 
-    command = "export PYTHONPATH=/beegfs/desy/group/mpa/fla/software/daq/libs/CentOS-7-x86_64; export LD_LIBRARY_PATH=/beegfs/desy/group/mpa/fla/software/daq/libs/CentOS-7-x86_64:/beegfs/desy/group/mpa/fla/software/daq/libs/CentOS-7-x86_64/extlib; python3 daqraw2hdf5_filter.py -xml %s -xfel -onefile -local -descr %s -logic AND -dest %s,\%s -tstart %s -tstop %s -filt %s" % (
-        '~/Documents/Datastream/SASE2_BPM_extraction/linac.xml', xmldfile, filter_bit1, filter_bit2, startstring, stopstring, bunchfilter)
+    command = ". /net/xfeluser1/export/doocs/server/daq_server/ENVIRONMENT.new; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH_OLD:/export/doocs/lib:/net/doocsdev16/export/doocs/lib:$LD_LIBRARY_PATH; export PATH=/opt/anaconda/bin:$PATH:/export/doocs/bin; export PYTHONPATH=$PYTHONPATH_OLD:/home/doocsadm/bm/python/DAQ/classes:/export/doocs/lib:/net/doocsdev16/export/doocs/lib:$PYTHONPATH; python3 modules/daqraw2hdf5_filter.py -xml %s -xfel -onefile -local -descr %s -logic AND -dest %s,\%s -tstart %s -tstop %s -filt %s" % (
+        xmlfile, xmldfile, filter_bit1, filter_bit2, startstring, stopstring, bunchfilter)
     print(command)
     subprocess.run(command, shell=True)

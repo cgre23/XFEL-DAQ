@@ -34,7 +34,7 @@ timing_channels={'FLASH':'TIMINGINFO/TIME1.BUNCH_PATTERN', 'XFEL':'XFEL.DIAG/TIM
 #print(pydoocs.__file__)
 #print(pydaq.__file__)
 total_subchan_name_bad = 0
-pickle_basic_name = 'mydata'
+pickle_basic_name = 'tmp/tempdata'
 
 
 def find_or_create_stat(daqname, macropulse, timestampsec, timestampusec, subchan, dtype, stats_list):
@@ -370,7 +370,7 @@ def write_hdf5_file_from_pickle_files(file, daqchannels, chandescrlst, ext=''):
             #print(basepath)
             sz =  os.path.getsize(basepath)
             sz_MB = sz/1048576
-            if sz_MB > 100:
+            if sz_MB > 2000:
                 file_count += 1
                 ext_inc = ext + '_' + str(file_count)
                 fd, hd5file = create_hdf5_file(file, ext_inc)
@@ -799,7 +799,7 @@ if __name__=='__main__':
             write_hdf5_file(file, daqchannels, stats_list, chandescrlst)
             print('done\n')
         else:
-            pickle_name = dout+pickle_basic_name+str(pickle_index)+'.p'
+            pickle_name = pickle_basic_name+str(pickle_index)+'.p'
             pickle.dump(stats_list, open(pickle_name, "wb")) 
             pickle_files.append(pickle_name)
             stats_list = []

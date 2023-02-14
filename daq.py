@@ -32,7 +32,7 @@ class DAQApp(QWidget):
         self.logstring = []
         self.conversion_success = 0
         self.sa1_sequence_prefix = 'XFEL.UTIL/TASKOMAT/DAQ_SA1'
-           
+
         self.xml_name_matches = ["main", "run", "chan", "dscr", ".xml"]
         self.ui.browsepb.clicked.connect(self.open_file_catalogue)
         self.ui.sequence_button.setCheckable(True)
@@ -59,15 +59,19 @@ class DAQApp(QWidget):
                 bunchfilter = 'SA1'
             else:
                 bunchfilter = 'all'
-            xmldfile = 'xml/xfel_sase1_main_run1727_chan_dscr.xml'
-            cmd = 'modules/hello.py'
-            command = cmd + ' --start ' + self.local_start + ' --stop ' + self.local_stop + '--xmldfile ' + xmldfile + ' --dest ' + bunchfilter
-            print(command)
-            self.q.put(cmd)
-            t = threading.Thread(target=self.convertHDF5)
-            t.daemon = True
-            t.start()
-            #self.conversionRAWtoHDF5('python3 modules/hello.py')
+
+            xmldfile = '/daq/xfel/adm/2023/xfel_sase2/main/run2019/xfel_sase2_main_run2019_chan_dscr.xml'
+            self.local_start = '2023-02-13T10:16:00'
+            self.local_stop = '2023-02-13T10:21:00'
+            bunchfilter = 'SA2'
+            cmd = 'modules/level0.py'
+            self.command = cmd + ' --start ' + self.local_start + ' --stop ' + self.local_stop + ' --xmldfile ' + xmldfile + ' --dest ' + bunchfilter
+            print(self.command)
+            subprocess.Popen(['python3', self.command], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+            #self.q.put(command)
+            #t = threading.Thread(target=self.convertHDF5)
+            #t.daemon = True
+            #t.start()
         # if it is unchecked
         else: # Force Stop
             # set background color back to white
@@ -107,7 +111,7 @@ class DAQApp(QWidget):
             t.start()
             self.logbooktext = ''.join(self.logstring)
             #self.logbook_entry(widget=self.tab, text=self.logbooktext)
-            
+
         # if it is unchecked
         else: # Force Stop
             # set background color back to white
@@ -130,14 +134,14 @@ class DAQApp(QWidget):
                 stop_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Not able to stop the sequence.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat(' ', 'seconds'))
                 self.ui.textBrowser.append(stop_log_html)
 
-        
+
     def convertHDF5(self):
         while True:
-            item = self.q.get()
-            print(item)
+            #item = self.q.get()
+            #print(item)
             #execute a task: call a shell program and wait until it completes
             try:
-                self.proc1 = subprocess.Popen(['python3', item], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+                self.proc1 = subprocess.Popen(['python3', self.command], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
                 stdout, stderr = self.proc1.communicate()
                 print(stdout)
             except FileNotFoundError as exc:
@@ -180,7 +184,7 @@ class DAQApp(QWidget):
             self.ui.textBrowser.append(start_log_html)
             self.ui.sequence_button.setChecked(False)
             self.ui.sequence_button.setText("Start SASE 1 DAQ")
-        
+
 
     def update_taskomat_logs(self):
         self.last_log_html = pydoocs.read(self.sa1_sequence_prefix+'/LOG_HTML.LAST')['data']
@@ -191,10 +195,10 @@ class DAQApp(QWidget):
     def read_start_stop_time(self):
         from_zone = tz.gettz('UTC')
         to_zone = tz.gettz('Europe/Vienna')
-        start_time_utc = pydoocs.read(self.sa1_sequence_prefix+'/STEP004.EXECUTION')['data']
-        stop_time_utc = pydoocs.read(self.sa1_sequence_prefix+'/STEP005.EXECUTION')['data']
+        start_time_utc = pydoocs.read(self.sa1_sequence_prefix+'/STEP005.EXECUTION')['data']
+        stop_time_utc = pydoocs.read(self.sa1_sequence_prefix+'/STEP006.EXECUTION')['data']
 
-        # Tell the datetime object that it's in UTC time zone since 
+        # Tell the datetime object that it's in UTC time zone since
         # datetime objects are 'naive' by default
         utc_t1 = datetime.strptime(start_time_utc, '%Y-%m-%d %H:%M:%S UTC')
         utc_t1 = utc_t1.replace(tzinfo=from_zone)
