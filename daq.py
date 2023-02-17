@@ -37,7 +37,9 @@ class DAQApp(QWidget):
         self.ui.browsepb.clicked.connect(self.open_file_catalogue)
         self.ui.sequence_button.setCheckable(True)
         self.ui.sequence_button.clicked.connect(self.toggleSequenceButton)
-        self.conversionSettings = {'starttime': 'start', 'stoptime': 'stop', 'xmldfile': '/path', 'bunchfilter': 'all'}
+
+        self.ui.filenameEdit.setText('/daq/xfel/adm/2023/xfel_sase2/main/run2019/xfel_sase2_main_run2019_chan_dscr.xml')
+        self.conversionSettings = {'starttime': 'start', 'stoptime': 'stop', 'xmldfile': self.ui.filenameEdit.text(), 'bunchfilter': 'SA2'}
         self.ui.convert_button.clicked.connect(self.toggleConvertButton)
         self.q = queue.Queue()
 
@@ -59,19 +61,18 @@ class DAQApp(QWidget):
                 bunchfilter = 'SA1'
             else:
                 bunchfilter = 'all'
+            #self.local_start = '2023-02-13T10:28:00'
+            #self.local_stop = '2023-02-13T10:34:00'
 
-            xmldfile = '/daq/xfel/adm/2023/xfel_sase2/main/run2019/xfel_sase2_main_run2019_chan_dscr.xml'
-            self.local_start = '2023-02-13T10:16:00'
-            self.local_stop = '2023-02-13T10:21:00'
-            bunchfilter = 'SA2'
-            cmd = 'modules/level0.py'
-            self.command = cmd + ' --start ' + self.local_start + ' --stop ' + self.local_stop + ' --xmldfile ' + xmldfile + ' --dest ' + bunchfilter
+            cmd = 'python modules/level0.py'
+            self.command = cmd + ' --start ' + self.conversionSettings['starttime'] + ' --stop ' + self.conversionSettings['stoptime'] + ' --xmldfile ' + self.conversionSettings['xmldfile'] + ' --dest ' + self.conversionSettings['bunchfilter']
             print(self.command)
-            subprocess.Popen(['python3', self.command], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-            #self.q.put(command)
-            #t = threading.Thread(target=self.convertHDF5)
-            #t.daemon = True
-            #t.start()
+            #self.convertHDF5()
+            #subprocess.Popen(['python3', self.command], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+            self.q.put(self.command)
+            t = threading.Thread(target=self.convertHDF5)
+            t.daemon = True
+            t.start()
         # if it is unchecked
         else: # Force Stop
             # set background color back to white
@@ -137,13 +138,13 @@ class DAQApp(QWidget):
 
     def convertHDF5(self):
         while True:
-            #item = self.q.get()
+            item = self.q.get()
             #print(item)
             #execute a task: call a shell program and wait until it completes
             try:
-                self.proc1 = subprocess.Popen(['python3', self.command], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-                stdout, stderr = self.proc1.communicate()
-                print(stdout)
+                self.proc1 = subprocess.run(item, shell=True)
+                #stdout, stderr = self.proc1.communicate()
+                #print(stdout)
             except FileNotFoundError as exc:
                 print(f"Process failed because the executable could not be found.\n{exc}")
                 return
@@ -195,8 +196,8 @@ class DAQApp(QWidget):
     def read_start_stop_time(self):
         from_zone = tz.gettz('UTC')
         to_zone = tz.gettz('Europe/Vienna')
-        start_time_utc = pydoocs.read(self.sa1_sequence_prefix+'/STEP005.EXECUTION')['data']
-        stop_time_utc = pydoocs.read(self.sa1_sequence_prefix+'/STEP006.EXECUTION')['data']
+        start_time_utc = pydoocs.read(self.sa1_sequence_prefix+'/STEP006.EXECUTION')['data']
+        stop_time_utc = pydoocs.read(self.sa1_sequence_prefix+'/STEP007.EXECUTION')['data']
 
         # Tell the datetime object that it's in UTC time zone since
         # datetime objects are 'naive' by default
@@ -207,17 +208,16 @@ class DAQApp(QWidget):
         utc_t2 = utc_t2.replace(tzinfo=from_zone)
 
         # Convert time zone and change to isoformat
-        self.local_start = utc_t1.astimezone(to_zone).replace(tzinfo=None).isoformat()
-        self.local_stop = utc_t2.astimezone(to_zone).replace(tzinfo=None).isoformat()
-        print(start_time_utc, self.local_start)
-        print(stop_time_utc, self.local_stop)
+        self.conversionSettings['starttime'] = utc_t1.astimezone(to_zone).replace(tzinfo=None).isoformat()
+        self.conversionSettings['stoptime'] = utc_t2.astimezone(to_zone).replace(tzinfo=None).isoformat()
+        print(self.conversionSettings['starttime'], self.conversionSettings['stoptime'])
         #self.logstring.append(self.last_log+'\n')
         #self.ui.textBrowser.append(self.last_log_html)
 
 
     def open_file_catalogue(self):  # self.parent.data_dir
         self.streampath_cat, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self, "Pick channel description file", "/daq/xfel/admtemp", 'xml (*.xml)', None, QtWidgets.QFileDialog.DontUseNativeDialog)
+            self, "Pick channel description file", "/daq/xfel/adm", 'xml (*.xml)', None, QtWidgets.QFileDialog.DontUseNativeDialog)
         if self.streampath_cat != "":
             filename_cat = os.path.basename(self.streampath_cat)
             self.ui.filenameEdit.setText(filename_cat)
