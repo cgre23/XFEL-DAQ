@@ -13,7 +13,7 @@ from gui.UIdaq import Ui_Form
 import threading, queue
 import shutil
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil import tz
 from functools import reduce
 from collections import defaultdict
@@ -38,8 +38,9 @@ class DAQApp(QWidget):
         self.ui.sequence_button.setCheckable(True)
         self.ui.sequence_button.clicked.connect(self.toggleSequenceButton)
 
-        self.ui.filenameEdit.setText('/daq/xfel/adm/2023/xfel_sase2/main/run2019/xfel_sase2_main_run2019_chan_dscr.xml')
-        self.conversionSettings = {'starttime': 'start', 'stoptime': 'stop', 'xmldfile': self.ui.filenameEdit.text(), 'bunchfilter': 'SA2'}
+        self.ui.filenameEdit.setText('/daq/xfel/adm/2023/xfel_sase1/main/run2019/xfel_sase1_main_run2019_chan_dscr.xml')
+        self.conversionSettings = {'starttime': 'start', 'stoptime': 'stop', 'xmldfile': self.ui.filenameEdit.text(), 'bunchfilter': 'SA1'}
+        #self.conversionSettings = {'starttime': '2023-02-27T16:22:52', 'stoptime': '2023-02-27T16:31:13', 'xmldfile': self.ui.filenameEdit.text(), 'bunchfilter': 'SA1'}
         self.ui.convert_button.clicked.connect(self.toggleConvertButton)
         self.q = queue.Queue()
 
@@ -58,7 +59,7 @@ class DAQApp(QWidget):
             self.ui.textBrowser.append(start_log_html)
             self.read_start_stop_time()
             if self.ui.radioButton.isChecked():
-                bunchfilter = 'SA1'
+                bunchfilter = 'SA2'
             else:
                 bunchfilter = 'all'
             #self.local_start = '2023-02-13T10:28:00'
@@ -106,10 +107,12 @@ class DAQApp(QWidget):
             self.palette = self.ui.sequence_button.palette()
             self.palette.setColor(QtGui.QPalette.Button, QtGui.QColor('blue'))
             self.ui.sequence_button.setPalette(self.palette)
-            self.ui.sequence_button.setText("Force Stop SASE 1 DAQ")
-            t = threading.Thread(target=self.start_sa1_sequence)
-            t.daemon = True
-            t.start()
+            self.ui.sequence_button.setText("Force Stop DAQ")
+
+            #t = threading.Thread(target=self.start_sa1_sequence)
+            #t.daemon = True
+            #t.start()
+            self.start_sa1_sequence()
             self.logbooktext = ''.join(self.logstring)
             #self.logbook_entry(widget=self.tab, text=self.logbooktext)
 
@@ -119,7 +122,7 @@ class DAQApp(QWidget):
             self.palette = self.ui.sequence_button.palette()
             self.palette.setColor(QtGui.QPalette.Button, QtGui.QColor('white'))
             self.ui.sequence_button.setPalette(self.palette)
-            self.ui.sequence_button.setText("Start SASE 1 DAQ")
+            self.ui.sequence_button.setText("Start DAQ")
             # Force Stop sequence
             try:
                 pydoocs.write(self.sa1_sequence_prefix+'/FORCESTOP', 1)
@@ -176,6 +179,9 @@ class DAQApp(QWidget):
                  #pass
             self.update_taskomat_logs()
             self.ui.sequence_button.setChecked(False)
+            self.palette = self.ui.sequence_button.palette()
+            self.palette.setColor(QtGui.QPalette.Button, QtGui.QColor('white'))
+            self.ui.sequence_button.setPalette(self.palette)
             self.ui.sequence_button.setText("Start SASE 1 DAQ")
         except:
             print('Not able to start Taskomat sequence.')
@@ -202,7 +208,7 @@ class DAQApp(QWidget):
         # Tell the datetime object that it's in UTC time zone since
         # datetime objects are 'naive' by default
         utc_t1 = datetime.strptime(start_time_utc, '%Y-%m-%d %H:%M:%S UTC')
-        utc_t1 = utc_t1.replace(tzinfo=from_zone)
+        utc_t1 = utc_t1.replace(tzinfo=from_zone) - timedelta(seconds=10)
 
         utc_t2 = datetime.strptime(stop_time_utc, '%Y-%m-%d %H:%M:%S UTC')
         utc_t2 = utc_t2.replace(tzinfo=from_zone)
