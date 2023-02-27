@@ -32,7 +32,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -48,7 +48,7 @@
           <item>
            <widget class="QPushButton" name="sequence_button">
             <property name="text">
-             <string>Start SASE 1 DAQ</string>
+             <string>Start DAQ</string>
             </property>
             <property name="checkable">
              <bool>true</bool>
@@ -97,7 +97,7 @@
           <property name="geometry">
            <rect>
             <x>20</x>
-            <y>50</y>
+            <y>110</y>
             <width>200</width>
             <height>24</height>
            </rect>
@@ -116,7 +116,7 @@
           <property name="geometry">
            <rect>
             <x>20</x>
-            <y>80</y>
+            <y>140</y>
             <width>300</width>
             <height>21</height>
            </rect>
@@ -131,8 +131,8 @@
          <widget class="QPushButton" name="browsepb">
           <property name="geometry">
            <rect>
-            <x>340</x>
-            <y>70</y>
+            <x>330</x>
+            <y>130</y>
             <width>100</width>
             <height>32</height>
            </rect>
@@ -150,14 +150,58 @@
          <widget class="QRadioButton" name="radioButton">
           <property name="geometry">
            <rect>
-            <x>29</x>
-            <y>120</y>
+            <x>30</x>
+            <y>180</y>
             <width>301</width>
             <height>20</height>
            </rect>
           </property>
           <property name="text">
            <string>Apply bunch filtering by destination?</string>
+          </property>
+         </widget>
+         <widget class="QComboBox" name="comboBox">
+          <property name="geometry">
+           <rect>
+            <x>140</x>
+            <y>50</y>
+            <width>91</width>
+            <height>32</height>
+           </rect>
+          </property>
+          <item>
+           <property name="text">
+            <string>SASE1</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>SASE2</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>SASE3</string>
+           </property>
+          </item>
+         </widget>
+         <widget class="QLabel" name="label_4">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>50</y>
+            <width>131</width>
+            <height>24</height>
+           </rect>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>200</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Convert files from:</string>
           </property>
          </widget>
         </widget>
