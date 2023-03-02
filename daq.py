@@ -34,13 +34,10 @@ class DAQApp(QWidget):
         self.sa1_sequence_prefix = 'XFEL.UTIL/TASKOMAT/DAQ_SA1'
 
         self.xml_name_matches = ["main", "run", "chan", "dscr", ".xml"]
-        self.ui.browsepb.clicked.connect(self.open_file_catalogue)
         self.ui.sequence_button.setCheckable(True)
         self.ui.sequence_button.clicked.connect(self.toggleSequenceButton)
 
-        self.ui.filenameEdit.setText('/daq/xfel/adm/2023/xfel_sase1/main/run2019/xfel_sase1_main_run2019_chan_dscr.xml')
-        self.conversionSettings = {'starttime': 'start', 'stoptime': 'stop', 'xmldfile': self.ui.filenameEdit.text(), 'bunchfilter': 'SA1'}
-        #self.conversionSettings = {'starttime': '2023-02-27T16:22:52', 'stoptime': '2023-02-27T16:31:13', 'xmldfile': self.ui.filenameEdit.text(), 'bunchfilter': 'SA1'}
+        self.conversionSettings = {'starttime': 'start', 'stoptime': 'stop', 'bunchfilter': 'SA2'}
         self.ui.convert_button.clicked.connect(self.toggleConvertButton)
         self.q = queue.Queue()
 
@@ -58,18 +55,18 @@ class DAQApp(QWidget):
             self.logstring.append(start_log)
             self.ui.textBrowser.append(start_log_html)
             self.read_start_stop_time()
-            if self.ui.radioButton.isChecked():
-                bunchfilter = 'SA2'
-            else:
-                bunchfilter = 'all'
-            #self.local_start = '2023-02-13T10:28:00'
-            #self.local_stop = '2023-02-13T10:34:00'
+            SASE = self.ui.SASEoptions.currentText()
+            if SASE == 'SASE1':
+                self.conversionSettings['bunchfilter'] = 'SA1'
+            elif SASE == 'SASE2':
+                self.conversionSettings['bunchfilter'] = 'SA2'
+            elif SASE == 'SASE3':
+                self.conversionSettings['bunchfilter'] = 'SA3'
 
-            cmd = 'python modules/level0.py'
-            self.command = cmd + ' --start ' + self.conversionSettings['starttime'] + ' --stop ' + self.conversionSettings['stoptime'] + ' --xmldfile ' + self.conversionSettings['xmldfile'] + ' --dest ' + self.conversionSettings['bunchfilter']
+            cmd = 'python modules/level0v2.py'
+            #self.command = cmd + ' --start ' + self.conversionSettings['starttime'] + ' --stop ' + self.conversionSettings['stoptime'] + ' --xmldfile ' + self.conversionSettings['xmldfile'] + ' --dest ' + self.conversionSettings['bunchfilter']
+            self.command = cmd + ' --start ' + self.conversionSettings['starttime'] + ' --stop ' + self.conversionSettings['stoptime'] + ' --dest ' + self.conversionSettings['bunchfilter']
             print(self.command)
-            #self.convertHDF5()
-            #subprocess.Popen(['python3', self.command], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
             self.q.put(self.command)
             t = threading.Thread(target=self.convertHDF5)
             t.daemon = True
@@ -211,7 +208,7 @@ class DAQApp(QWidget):
         utc_t1 = utc_t1.replace(tzinfo=from_zone) - timedelta(seconds=10)
 
         utc_t2 = datetime.strptime(stop_time_utc, '%Y-%m-%d %H:%M:%S UTC')
-        utc_t2 = utc_t2.replace(tzinfo=from_zone)
+        utc_t2 = utc_t2.replace(tzinfo=from_zone) - timedelta(seconds=5)
 
         # Convert time zone and change to isoformat
         self.conversionSettings['starttime'] = utc_t1.astimezone(to_zone).replace(tzinfo=None).isoformat()
@@ -219,19 +216,6 @@ class DAQApp(QWidget):
         print(self.conversionSettings['starttime'], self.conversionSettings['stoptime'])
         #self.logstring.append(self.last_log+'\n')
         #self.ui.textBrowser.append(self.last_log_html)
-
-
-    def open_file_catalogue(self):  # self.parent.data_dir
-        self.streampath_cat, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self, "Pick channel description file", "/daq/xfel/adm", 'xml (*.xml)', None, QtWidgets.QFileDialog.DontUseNativeDialog)
-        if self.streampath_cat != "":
-            filename_cat = os.path.basename(self.streampath_cat)
-            self.ui.filenameEdit.setText(filename_cat)
-            #self.ui.loadcataloguepb.setEnabled(
-            #    self.check_xml_filename(self.streampath_cat))
-        else:
-            self.ui.filenameEdit.setText('')
-
 
     def check_xml_filename(self, path):
         if all(x in path for x in self.xml_name_matches):

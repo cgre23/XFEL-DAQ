@@ -32,7 +32,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -93,74 +93,7 @@
          <property name="title">
           <string>Raw-to-HDF5 Conversion Settings</string>
          </property>
-         <widget class="QLabel" name="label_3">
-          <property name="geometry">
-           <rect>
-            <x>20</x>
-            <y>110</y>
-            <width>200</width>
-            <height>24</height>
-           </rect>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>200</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>XML description file</string>
-          </property>
-         </widget>
-         <widget class="QLineEdit" name="filenameEdit">
-          <property name="geometry">
-           <rect>
-            <x>20</x>
-            <y>140</y>
-            <width>300</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>300</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="browsepb">
-          <property name="geometry">
-           <rect>
-            <x>330</x>
-            <y>130</y>
-            <width>100</width>
-            <height>32</height>
-           </rect>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>100</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Browse</string>
-          </property>
-         </widget>
-         <widget class="QRadioButton" name="radioButton">
-          <property name="geometry">
-           <rect>
-            <x>30</x>
-            <y>180</y>
-            <width>301</width>
-            <height>20</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Apply bunch filtering by destination?</string>
-          </property>
-         </widget>
-         <widget class="QComboBox" name="comboBox">
+         <widget class="QComboBox" name="SASEoptions">
           <property name="geometry">
            <rect>
             <x>140</x>
