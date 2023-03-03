@@ -39,7 +39,7 @@ pickle_basic_name = 'tmp/tempdata'
 
 def find_or_create_stat(daqname, macropulse, timestampsec, timestampusec, subchan, dtype, stats_list):
     #creating/finding the entry
-    curentry = None                        
+    curentry = None
     for stats in stats_list:
         if stats['daqname'] == daqname:
             curentry = stats
@@ -54,8 +54,8 @@ def find_or_create_stat(daqname, macropulse, timestampsec, timestampusec, subcha
             curentry['EventID'] = []
             curentry['TimeStamp'] = []
             stats_list.append(curentry)
-    # filling fevent 
-    curentry['events'] += 1       
+    # filling fevent
+    curentry['events'] += 1
     curentry['EventID'].append(macropulse)
     curentry['TimeStamp'].append([timestampsec, timestampusec])
     return curentry
@@ -313,7 +313,12 @@ def create_hdf5_file(file, ext=''):
     parts = file.split('/')
     fname = parts[len(parts) -1].split('_main')[0]
 
-    hd5file = dout + fname + '_' + tstart + '_' + tstop + '_' + ext + '.hdf5'
+    startstring = starttime.replace('-', '')
+    startstring = startstring.replace(':', '')
+    stopstring = stoptime.replace('-', '')
+    stopstring = stopstring.replace(':', '')
+
+    hd5file = dout + fname + '_' + startstring + '_' + stopstring + '_' + ext + '.hdf5'
     print('writing into %s . . . \n'%(hd5file), end = '', flush=True)
     fd = h5.File(hd5file, "w")
     # point to the default data to be plotted
@@ -350,16 +355,16 @@ def write_hdf5_file_from_pickle_files(file, daqchannels, chandescrlst, ext=''):
                     break
             if not found:
                 print("%s NOT FOUND in %s"%(daqchan, pfile))
-                continue           
+                continue
             if not len(stats): stats = lstats
             else:
                 stats['events'] += lstats['events']
                 stats['data'].extend(lstats['data'])
                 stats['EventID'].extend(lstats['EventID'])
-                stats['TimeStamp'].extend(lstats['TimeStamp'])   
-                
+                stats['TimeStamp'].extend(lstats['TimeStamp'])
+
         if not len(stats): print('%s not found', daqchan)
-        else: 
+        else:
             #sz =  getsize(stats)
             #print(daqchan, 'events:', stats['events'], 'size in memory:', sz)
             #total_size_in_memory += sz
@@ -375,7 +380,7 @@ def write_hdf5_file_from_pickle_files(file, daqchannels, chandescrlst, ext=''):
                 ext_inc = ext + '_' + str(file_count)
                 fd, hd5file = create_hdf5_file(file, ext_inc)
                 basepath = os.path.basename(hd5file)
-            
+
 
     for pfile in pickle_files:
         os.remove(pfile)
@@ -385,7 +390,7 @@ def write_hdf5_file_from_pickle_files(file, daqchannels, chandescrlst, ext=''):
 
 def write_hdf5_file(file, daqchannels, stats_list, chandescrlst, ext=''):
     global total_subchan_name_bad
-    
+
     fd, hd5file = create_hdf5_file(file, ext)
     h5filelist.append(hd5file)
     for daqchan in daqchannels:
@@ -396,7 +401,7 @@ def write_hdf5_file(file, daqchannels, stats_list, chandescrlst, ext=''):
                 break
         if not found:
             print("%s NOT FOUND"%daqchan)
-            continue;    
+            continue;
         hd5file = write_data_hdf5_file(fd, stats,  chandescrlst)
     fd.close()
     return hd5file
@@ -408,18 +413,18 @@ def HelpAndExit():
     print("\t-xml file\t- XML file with DAQ request parameters")
     print("\t-start stime\t- stime is the start time to be used in the request (overwrites XML start time). The format (Year-Month-DayTHour:Min:Sec, eg. 2020-01-01T00:00:00) ")
     print("\t-stop stime\t- stime is the stop time to be used in the request (overwrites XML start time). The format (Year-Month-DayTHour:Min:Sec, eg. 2020-01-01T00:00:00) ")
-    print("\t-descr file\t- XML file with DAQ channel descriptions (if not set - default one will be used depending on linac)") 
-    print("\t-dout path\t- directory for storing  HDF5 files  (if not set - the current directory will be used") 
+    print("\t-descr file\t- XML file with DAQ channel descriptions (if not set - default one will be used depending on linac)")
+    print("\t-dout path\t- directory for storing  HDF5 files  (if not set - the current directory will be used")
     print("\t-all \t\t- consider only those EventIDs where all channels are present (default - all available Event IDs) ")
-    print("\t-xfel \t\t- data for XFEL (default: FLASH) ")  
-    print("\t-local \t\t- DAQ data extraction local mode will be used (default: DAQ data service)") 
-    print("\t-c compr\t- compression level (default: 1) ") 
+    print("\t-xfel \t\t- data for XFEL (default: FLASH) ")
+    print("\t-local \t\t- DAQ data extraction local mode will be used (default: DAQ data service)")
+    print("\t-c compr\t- compression level (default: 1) ")
     print("\t-logic how\t- logic to use for in case of several dest names (default: %s, available: 'AND', 'OR') \n"%logic)
-    print("\t-dest name1;name ..\t- beam destination name pattern(s) (eg. TLD;T5D)\n") 
-    print("\t-onefile\t- all data to one HDF5 file (default: No) ") 
+    print("\t-dest name1;name ..\t- beam destination name pattern(s) (eg. TLD;T5D)\n")
+    print("\t-onefile\t- all data to one HDF5 file (default: No) ")
     print("\t-evstep nevents\t- take every nevents-th event (default 1)")
-    print("\t-print \t\t- print data\n")   
-    print("\t-t \t\t- convert data according to start/stop time (by default: off - whole files converted)\n")  
+    print("\t-print \t\t- print data\n")
+    print("\t-t \t\t- convert data according to start/stop time (by default: off - whole files converted)\n")
     print("\t-h\t\t- prints this help\n")
     sys.exit(1)
 
@@ -447,8 +452,6 @@ if __name__=='__main__':
     localmode = False
     starttime = None
     stoptime = None
-    tstart = None
-    tstop = None
     dout = None
     dest = []
     start_time = None
@@ -466,33 +469,31 @@ if __name__=='__main__':
     for i in range(1, len(sys.argv)):
         if not skip:
             if sys.argv[i][:4] == "-xml": (skip,xmlfile)  = NextArg(i)
-            elif sys.argv[i][:6] == "-start": (skip,starttime)  = NextArg(i) 
-            elif sys.argv[i][:5] == "-stop": (skip,stoptime)  = NextArg(i) 
-            elif sys.argv[i][:7] == "-tstart": (skip,tstart)  = NextArg(i) 
-            elif sys.argv[i][:6] == "-tstop": (skip,tstop)  = NextArg(i) 
-            elif sys.argv[i][:6] == "-filt": (skip,bunchfilter)  = NextArg(i)   
-            elif sys.argv[i][:6] == "-descr": (skip,xmldfile)  = NextArg(i)   
-            elif sys.argv[i][:5] == "-dout": (skip,dout)  = NextArg(i)      
-            elif sys.argv[i][:5] == "-xfel": xfel = True   
-            elif sys.argv[i][:5] == "-all": all = True     
+            elif sys.argv[i][:6] == "-start": (skip,starttime)  = NextArg(i)
+            elif sys.argv[i][:5] == "-stop": (skip,stoptime)  = NextArg(i)
+            elif sys.argv[i][:6] == "-filt": (skip,bunchfilter)  = NextArg(i)
+            elif sys.argv[i][:6] == "-descr": (skip,xmldfile)  = NextArg(i)
+            elif sys.argv[i][:5] == "-dout": (skip,dout)  = NextArg(i)
+            elif sys.argv[i][:5] == "-xfel": xfel = True
+            elif sys.argv[i][:5] == "-all": all = True
             elif sys.argv[i][:5] == "-dest": (skip,dest) = NextArg(i)
             elif sys.argv[i][:6] == "-logic": (skip,logic) = NextArg(i)
-            elif sys.argv[i][:6] == "-local": localmode = True   
-            elif sys.argv[i][:8] == "-onefile": onefile = True   
-            elif sys.argv[i][:2] == "-c": (skip,compression)  = NextArg(i)   
-            elif sys.argv[i][:7] == "-evstep":  (skip,evjump) = NextArg(i)   
-            elif sys.argv[i][:6] == "-print": do_print = True   
+            elif sys.argv[i][:6] == "-local": localmode = True
+            elif sys.argv[i][:8] == "-onefile": onefile = True
+            elif sys.argv[i][:2] == "-c": (skip,compression)  = NextArg(i)
+            elif sys.argv[i][:7] == "-evstep":  (skip,evjump) = NextArg(i)
+            elif sys.argv[i][:6] == "-print": do_print = True
             elif sys.argv[i][:2] == "-t": exact_time = True
             elif sys.argv[i][:2] == "-h": HelpAndExit()
             elif sys.argv[i][:1] == "-":  Fatal("'%s' unknown argument" % sys.argv[i])
             else:                         Fatal("'%s' unexpected" % sys.argv[i])
         else: skip = 0
     timeofstart = datetime.now()
-    
+
     if logic != 'AND' and logic != 'OR':
         print('Invalid logic %s must be AND or OR\n'%logic)
         exit(-1)
-    
+
     if not xmlfile:
         Fatal("Please, check you input arguments")
 
@@ -526,7 +527,7 @@ if __name__=='__main__':
             Fatal("Compression level for  HDF5 files '%s' has to be a number" % compression)
         else:
             compression=int(compression)
-    
+
     # setting the default channel for timing information
     if not channel:
         if linac in timing_channels:
@@ -534,8 +535,8 @@ if __name__=='__main__':
             print('%s will be used for timing inforamation'%channel)
         else:
             print('Failed to find timing info channel for  %s'%linac)
-            sys.exit(-1)    
-    
+            sys.exit(-1)
+
     if dest:
         dest = list(str.split(dest,','))
         print(dest)
@@ -566,12 +567,12 @@ if __name__=='__main__':
 
     if starttime:
         if request.setStartTime(starttime):
-            Fatal("Please, check start time format '%s'. It must be 'Year-Month-DayTHour:Min:Sec' " % starttime) 
-    
+            Fatal("Please, check start time format '%s'. It must be 'Year-Month-DayTHour:Min:Sec' " % starttime)
+
     if stoptime:
         if request.setStopTime(stoptime):
-            Fatal("Please, check stop time format '%s'. It must be 'Year-Month-DayTHour:Min:Sec' " % starttime) 
-    
+            Fatal("Please, check stop time format '%s'. It must be 'Year-Month-DayTHour:Min:Sec' " % starttime)
+
     # saving the updated XML request file
     tmpxmlfile = '/tmp/' + str(os.getpid()) +  '.xml'
     xml, res = request.create_xml(tmpxmlfile)
@@ -585,18 +586,18 @@ if __name__=='__main__':
             print(xml)
 
     #=========================== bunch pattern object ==============================
-    
+
     bp = DAQBunchPattern(linac)
 
     #print(reqchans)
     #print(xmldfile)
     chandescrlst = DAQChanDescrList.ChanDescrList(xmlfile=xmldfile, chans = reqchans).GetDescriptionList()
-    
-    
+
+
     daqfiles, daqchannels = DAQbasic.get_channel_file_list(tmpxmlfile, linac, localmode, True, do_print)
     os.remove(tmpxmlfile)
     localxmlfile = tmpxmlfile
-    
+
     if daqfiles == []:
         print('No files found... exiting')
         sys.exit(-2)
@@ -616,7 +617,7 @@ if __name__=='__main__':
     for file in daqfiles:
         indexout = []
         indexoutold = []
-        
+
         if not onefile:
             stats_list = []
         xml_request = DAQbasic.prepare_file_request(xml_basic, file)
@@ -633,13 +634,13 @@ if __name__=='__main__':
         print("Working with %d channels\n" %  len(daqchannels))
         #sys.exit(0)
         try:
-            err = pydaq.connect(xml=localxmlfile, linac=linac, all=all, local=localmode, cachesize=10000) 
+            err = pydaq.connect(xml=localxmlfile, linac=linac, all=all, local=localmode, cachesize=10000)
         except pydaq.PyDaqException as err:
             print('Something wrong with connect... exiting')
             print(err)
-            os.remove(localxmlfile) 
+            os.remove(localxmlfile)
             sys.exit(-1)
-            
+
 
         stop = False
         emptycount = 0
@@ -650,7 +651,7 @@ if __name__=='__main__':
         while not stop and (emptycount < 100000):
             try:
                 channels = pydaq.getdata()
-                
+
                 if channels == []:
                     emptycount += 1
                     time.sleep(0.001)
@@ -659,7 +660,7 @@ if __name__=='__main__':
                     break
 
                 totalevents +=1
-                if  totalevents%evjump: continue    
+                if  totalevents%evjump: continue
                 #print(channels)
                 nch = 0
                 #once = True
@@ -675,7 +676,7 @@ if __name__=='__main__':
                         if stop_time and stop_time <= timestampsec: continue
                         subchan = len(entry['data'])
                         curentry = find_or_create_stat(daqname, entry['macropulse'], timestampsec, timestampusec, subchan, 'DATA_FLOAT', stats_list)
-                        data = entry['data'] 
+                        data = entry['data']
                         chtotal = curentry['events']
                         # filling the data
                         for subi in range(0, subchan):
@@ -700,11 +701,11 @@ if __name__=='__main__':
                 #    print("%s is not in list."%(channel))
                 #    bunchfilter = 'all'
                 #    sys.exit(-1)
-                
-                #indx = chan_list.index(channel)                    
+
+                #indx = chan_list.index(channel)
                 #if indx != 0:
                 #    channels[0], channels[indx] = channels[indx], channels[0]
-                    
+
                 for chan in channels:
                     if do_print:
                         print(chan)
@@ -712,10 +713,10 @@ if __name__=='__main__':
                     daqname = chan[0]['miscellaneous']['daqname']
                     timestampsec = int(chan[0]['timestamp']//1)
                     timestampusec = int((chan[0]['timestamp'] % 1)*1000000)
-                    if start_time and start_time > timestampsec: 
+                    if start_time and start_time > timestampsec:
                         skip = True
                         continue
-                    if stop_time and stop_time <= timestampsec: 
+                    if stop_time and stop_time <= timestampsec:
                         skip = True
                         continue
                     macropulse =  chan[0]['macropulse']
@@ -738,7 +739,7 @@ if __name__=='__main__':
                                 belong, result =  bp.check_bunch_pattern(value, dest, logic, False)
                                 if debug: print(belong, result)
                                 if belong:
-                                    indexout.append(index)  
+                                    indexout.append(index)
                                     filter_indices = [int(index / 2) for index in indexout]
                     ##################################### FILTER ADDITION
                     if daqname:
@@ -748,8 +749,8 @@ if __name__=='__main__':
                                 data = sub['data']
                                 if isinstance(data, list):
                                     if data != []:
-                                        data = sub['data'][subi][1]       
-                                        curentry['data'].append(data) 
+                                        data = sub['data'][subi][1]
+                                        curentry['data'].append(data)
                                     else:
                                         curentry['data'].append([])
                                 elif 'index' in sub['miscellaneous']:
@@ -757,11 +758,11 @@ if __name__=='__main__':
                                         #print('Filter in', daqname)
                                         curentry['data'].append(sub['data'][filter_indices,1])
                                     else:
-                                        curentry['data'].append(sub['data'][:,1])                                        
+                                        curentry['data'].append(sub['data'][:,1])
                                 else:
                                     #print("This is an IMAGE %dx%d"%(len(data[0]), len(data)))
                                     image = True
-                                    curentry['data'].append(sub['data'])                                
+                                    curentry['data'].append(sub['data'])
                     #sys.exit(0)
                 emptycount = 0
                 if not skip:
@@ -793,14 +794,14 @@ if __name__=='__main__':
                 print(stats)
                 print(stats['daqname'], ':\t', stats['events'], ' events')
         print('done (total events: %d)'%(total))
-        
+
     # writing to HDF5 file
         if(not onefile):
             write_hdf5_file(file, daqchannels, stats_list, chandescrlst)
             print('done\n')
         else:
             pickle_name = pickle_basic_name+str(pickle_index)+'.p'
-            pickle.dump(stats_list, open(pickle_name, "wb")) 
+            pickle.dump(stats_list, open(pickle_name, "wb"))
             pickle_files.append(pickle_name)
             stats_list = []
             pickle_index += 1
@@ -810,7 +811,7 @@ if __name__=='__main__':
 
     if(onefile):
         write_hdf5_file_from_pickle_files('all'+ daqfiles_orig[0], daqchannels, chandescrlst, ext=bunchfilter)
-        print('done total size:', np.round(sz_MB,1), 'MB') 
+        print('done total size:', np.round(sz_MB,1), 'MB')
         if bunchfilter != 'all':
             print('Filtering indices:', filter_indices)
 #    else:
