@@ -64,8 +64,13 @@ class DAQApp(QWidget):
             start_log_html = '<html> <style> p { margin:0px; } span.d { font-size:80%; color:#555555; } span.e { font-weight:bold; color:#FF0000; } span.w { color:#CCAA00; } </style> <body style="font:normal 10px Arial,monospaced; margin:0; padding:0;"> Started the file conversion.  <span class="d">(datetime)</span></body></html>'.replace('datetime', datetime.now().isoformat(' ', 'seconds'))
             self.logstring.append(start_log)
             self.ui.textBrowser.append(start_log_html)
+
             if self.ui.radioButton.isChecked() == False:
                 self.read_start_stop_time()
+            self.ui.radioButton.setEnabled(False)
+            self.ui.starttime.setEnabled(False)
+            self.ui.stoptime.setEnabled(False)
+            
             SASE = self.ui.SASEoptions.currentText()
             if SASE == 'SASE1':
                 self.conversionSettings['bunchfilter'] = 'SA1'
@@ -247,11 +252,9 @@ class DAQApp(QWidget):
 
     def startdatetimeChanged(self):
         self.conversionSettings['starttime'] = self.ui.starttime.dateTime().toString('yyyy-MM-ddTHH:mm:ss')
-        print(self.conversionSettings['starttime'])
 
     def stopdatetimeChanged(self):
         self.conversionSettings['stoptime'] = self.ui.stoptime.dateTime().toString('yyyy-MM-ddTHH:mm:ss')
-        print(self.conversionSettings['stoptime'])
 
     def check_xml_filename(self, path):
         if all(x in path for x in self.xml_name_matches):
