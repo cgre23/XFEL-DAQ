@@ -121,14 +121,14 @@ def pre_conversion(argv):
             bunchfilter = 'SA3'
             xmlfile = 'xml/xfel_sase3.xml'
         else:
-            print('Destination not recognized')
+            print('No filtering by destination applied')
             bunchfilter = 'all'
-            xmlfile = 'xml/xfel_sase1.xml'
+            xmlfile = 'xml/linac.xml'
         print('Pattern to use:', bit1, bit2)
     else:
         print('No filter by destination applied')
         bunchfilter = 'all'
-        xmlfile = 'xml/xfel_sase1.xml'
+        xmlfile = 'xml/linac.xml'
 
     #xmlpath = os.path.join(dest_dir, xmlfile)
 

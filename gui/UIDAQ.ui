@@ -117,6 +117,11 @@
             <string>SASE3</string>
            </property>
           </item>
+          <item>
+           <property name="text">
+            <string>LINAC</string>
+           </property>
+          </item>
          </widget>
          <widget class="QLabel" name="label_4">
           <property name="geometry">
@@ -135,6 +140,65 @@
           </property>
           <property name="text">
            <string>Convert files from:</string>
+          </property>
+         </widget>
+         <widget class="QDateTimeEdit" name="starttime">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>150</y>
+            <width>194</width>
+            <height>22</height>
+           </rect>
+          </property>
+          <property name="minimumDate">
+           <date>
+            <year>2022</year>
+            <month>9</month>
+            <day>14</day>
+           </date>
+          </property>
+          <property name="calendarPopup">
+           <bool>true</bool>
+          </property>
+         </widget>
+         <widget class="QDateTimeEdit" name="stoptime">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="geometry">
+           <rect>
+            <x>310</x>
+            <y>150</y>
+            <width>194</width>
+            <height>22</height>
+           </rect>
+          </property>
+          <property name="minimumDate">
+           <date>
+            <year>2022</year>
+            <month>9</month>
+            <day>14</day>
+           </date>
+          </property>
+          <property name="calendarPopup">
+           <bool>true</bool>
+          </property>
+         </widget>
+         <widget class="QRadioButton" name="radioButton">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>120</y>
+            <width>301</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Override start and stop times</string>
           </property>
          </widget>
         </widget>

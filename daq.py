@@ -7,7 +7,7 @@ from os import listdir
 from os.path import isfile, join
 import h5py
 from PyQt5 import QtGui, QtCore, QtWidgets
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QDateTime
 from PyQt5.QtWidgets import QWidget, QApplication, QFileDialog
 from gui.UIdaq import Ui_Form
 import threading, queue
@@ -39,6 +39,16 @@ class DAQApp(QWidget):
 
         self.conversionSettings = {'starttime': 'start', 'stoptime': 'stop', 'bunchfilter': 'SA2'}
         self.ui.convert_button.clicked.connect(self.toggleConvertButton)
+        self.ui.starttime.setDateTime(QDateTime.currentDateTime().addSecs(-60))
+        self.ui.stoptime.setDateTime(QDateTime.currentDateTime())
+        self.ui.starttime.setDisplayFormat("dd/MM/yyyy hh:mm:ss")
+        self.ui.stoptime.setDisplayFormat("dd/MM/yyyy hh:mm:ss")
+        self.ui.starttime.setMaximumDateTime(QDateTime.currentDateTime())
+        self.ui.stoptime.setMaximumDateTime(QDateTime.currentDateTime())
+
+        self.ui.radioButton.clicked.connect(self.check)
+        self.ui.starttime.dateTimeChanged.connect(self.startdatetimeChanged)
+        self.ui.stoptime.dateTimeChanged.connect(self.stopdatetimeChanged)
         self.q = queue.Queue()
 
 
@@ -62,6 +72,8 @@ class DAQApp(QWidget):
                 self.conversionSettings['bunchfilter'] = 'SA2'
             elif SASE == 'SASE3':
                 self.conversionSettings['bunchfilter'] = 'SA3'
+            elif SASE == 'LINAC':
+                self.conversionSettings['bunchfilter'] = 'all'
 
             cmd = 'python modules/level0v2.py'
             #self.command = cmd + ' --start ' + self.conversionSettings['starttime'] + ' --stop ' + self.conversionSettings['stoptime'] + ' --xmldfile ' + self.conversionSettings['xmldfile'] + ' --dest ' + self.conversionSettings['bunchfilter']
@@ -160,6 +172,8 @@ class DAQApp(QWidget):
                 return
             #self.q.task_done()
 
+    
+
     def start_sa1_sequence(self):
         try:
             pydoocs.write(self.sa1_sequence_prefix+'/RUN.ONCE', 1)
@@ -216,6 +230,27 @@ class DAQApp(QWidget):
         print(self.conversionSettings['starttime'], self.conversionSettings['stoptime'])
         #self.logstring.append(self.last_log+'\n')
         #self.ui.textBrowser.append(self.last_log_html)
+
+    # method called by radio button
+    def check(self):
+        # checking if it is checked
+        if self.ui.radioButton.isChecked():
+            # changing text of label
+            self.ui.starttime.setEnabled(True)
+            self.ui.stoptime.setEnabled(True)
+
+        # if it is not checked
+        else:
+            self.ui.starttime.setEnabled(False)
+            self.ui.stoptime.setEnabled(False)
+
+    def startdatetimeChanged(self):
+        self.conversionSettings['starttime'] = self.ui.starttime.dateTime().toString('yyyy-MM-ddTHH:mm:ss')
+        print(self.conversionSettings['starttime'])
+
+    def stopdatetimeChanged(self):
+        self.conversionSettings['stoptime'] = self.ui.stoptime.dateTime().toString('yyyy-MM-ddTHH:mm:ss')
+        print(self.conversionSettings['stoptime'])
 
     def check_xml_filename(self, path):
         if all(x in path for x in self.xml_name_matches):
