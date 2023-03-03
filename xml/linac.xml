@@ -1642,6 +1642,6 @@
 <Chan name= 'XFEL.DIAG/CHARGE.ML/TORA.46.I1'/>
 <Chan name= 'XFEL.DIAG/CHARGE.ML/TORA.60.I1'/>
 <Chan name= 'XFEL.DIAG/CHARGE.ML/TORC.64.I1D'/>
-            <CDir name='/daq/xfel/adm'/>
+            <CDir name='/daq/xfel/admtemp'/>
             </DAQREQ>
              
