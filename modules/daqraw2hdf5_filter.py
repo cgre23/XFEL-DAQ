@@ -34,7 +34,7 @@ timing_channels={'FLASH':'TIMINGINFO/TIME1.BUNCH_PATTERN', 'XFEL':'XFEL.DIAG/TIM
 #print(pydoocs.__file__)
 #print(pydaq.__file__)
 total_subchan_name_bad = 0
-pickle_basic_name = 'tmp/tempdata'
+
 
 
 def find_or_create_stat(daqname, macropulse, timestampsec, timestampusec, subchan, dtype, stats_list):
@@ -551,6 +551,11 @@ if __name__=='__main__':
         print('Pattern to use:',dest)
     else:
         print('No filter by destination applied')
+
+    if bunchfilter:
+        pickle_basic_name = 'tmp/tempdata_'+bunchfilter+'_'
+    else:
+        pickle_basic_name = 'tmp/tempdata_all_'
 
     request = DAQRequest.DAQRequest(xmlfile = xmlfile)
     reqchans = request.getChans()
