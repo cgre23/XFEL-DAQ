@@ -34,8 +34,9 @@ class DAQApp(QWidget):
         self.sa1_sequence_prefix = 'XFEL.UTIL/TASKOMAT/DAQ_SA1'
 
         self.xml_name_matches = ["main", "run", "chan", "dscr", ".xml"]
-        self.ui.sequence_button.setCheckable(True)
-        self.ui.sequence_button.clicked.connect(self.toggleSequenceButton)
+        self.ui.sequence_button.setCheckable(False)
+        self.ui.sequence_button.setEnabled(False)
+        #self.ui.sequence_button.clicked.connect(self.toggleSequenceButton)
 
         self.conversionSettings = {'starttime': 'start', 'stoptime': 'stop', 'bunchfilter': 'SA2'}
         self.ui.convert_button.clicked.connect(self.toggleConvertButton)
@@ -70,7 +71,7 @@ class DAQApp(QWidget):
             self.ui.radioButton.setEnabled(False)
             self.ui.starttime.setEnabled(False)
             self.ui.stoptime.setEnabled(False)
-            
+
             SASE = self.ui.SASEoptions.currentText()
             if SASE == 'SASE1':
                 self.conversionSettings['bunchfilter'] = 'SA1'
@@ -178,7 +179,7 @@ class DAQApp(QWidget):
                 return
             #self.q.task_done()
 
-    
+
 
     def start_sa1_sequence(self):
         try:
@@ -219,16 +220,16 @@ class DAQApp(QWidget):
     def read_start_stop_time(self):
         from_zone = tz.gettz('UTC')
         to_zone = tz.gettz('Europe/Vienna')
-        start_time_utc = pydoocs.read(self.sa1_sequence_prefix+'/STEP006.EXECUTION')['data']
-        stop_time_utc = pydoocs.read(self.sa1_sequence_prefix+'/STEP007.EXECUTION')['data']
+        start_time_utc = pydoocs.read(self.sa1_sequence_prefix+'/STEP007.EXECUTION')['data']
+        stop_time_utc = pydoocs.read(self.sa1_sequence_prefix+'/STEP008.EXECUTION')['data']
 
         # Tell the datetime object that it's in UTC time zone since
         # datetime objects are 'naive' by default
         utc_t1 = datetime.strptime(start_time_utc, '%Y-%m-%d %H:%M:%S UTC')
-        utc_t1 = utc_t1.replace(tzinfo=from_zone) - timedelta(seconds=10)
+        utc_t1 = utc_t1.replace(tzinfo=from_zone) - timedelta(seconds=5)
 
         utc_t2 = datetime.strptime(stop_time_utc, '%Y-%m-%d %H:%M:%S UTC')
-        utc_t2 = utc_t2.replace(tzinfo=from_zone) - timedelta(seconds=5)
+        utc_t2 = utc_t2.replace(tzinfo=from_zone) - timedelta(seconds=1)
 
         # Convert time zone and change to isoformat
         self.conversionSettings['starttime'] = utc_t1.astimezone(to_zone).replace(tzinfo=None).isoformat()
